@@ -7,4 +7,7 @@ Ein Projekt für das Seminar _Textanalyse in den Politikwissenschaften_
 Das Korpus enthält Wahlprogramme zur Bundestagswahl von 2002 bis 2017. Die Originale als PDF-Dateien sind hier abrufbar:
 + [CDU](https://www.kas.de/de/web/geschichte-der-cdu/wahlprogramme-und-slogans)
 + [SPD](https://www.fes.de/bibliothek/grundsatz-regierungs-und-wahlprogramme-der-spd-1949-heute)
++ [FDP](https://www.freiheit.org/de/wahlprogramme-der-fdp-zu-den-bundestagswahlen)
++ [AfD 2013](https://www.abgeordnetenwatch.de/bundestag/wahl-2013/wahlprogramme)
++ [AfD 2017](https://www.afd.de/wahlprogramm/)
 # Ergebnisse
