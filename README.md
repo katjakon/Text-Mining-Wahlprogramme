@@ -10,4 +10,5 @@ Das Korpus enthält Wahlprogramme zur Bundestagswahl von 2002 bis 2017. Die Orig
 + [FDP](https://www.freiheit.org/de/wahlprogramme-der-fdp-zu-den-bundestagswahlen)
 + [AfD 2013](https://www.abgeordnetenwatch.de/bundestag/wahl-2013/wahlprogramme)
 + [AfD 2017](https://www.afd.de/wahlprogramm/)
++ [PDS, später DIE LINKE](https://www.rosalux.de/stiftung/historisches-zentrum/archiv/download)
 # Ergebnisse
