@@ -57,5 +57,7 @@ years <- dfm(corpus_subset(programs, year %in% c(2002, 2017)),
 textplot_wordcloud(years, comparison = TRUE, max_words = 300,
                    color = c("blue", "red"))
 
-
-
+# Similarity 
+# Why are they so similar??
+progr_simil <- textstat_simil(dfm(programs), margin = "documents", method = 'cosine')
+progr_simil
