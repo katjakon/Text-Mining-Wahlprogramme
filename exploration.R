@@ -11,7 +11,6 @@ programs <- readtext("Korpus-Dateien",
                      encoding="utf-8") %>% corpus()
 # Convert characters in year column to integers
 docvars(programs, field="year") <- as.integer(docvars(programs, field="year"))
-docvars(programs)
 
 # Create tokens object for whole corpus
 program_toks <- tokens(programs,remove_punct = TRUE) %>% tokens_remove(stopwords("german"), padding = TRUE )
@@ -53,13 +52,9 @@ afd <- programs[programs$party == "AfD"] %>% tokens(remove_punct = TRUE) %>%
   tokens_remove(stopwords("german"), padding = TRUE) %>% dfm()
 textplot_wordcloud(afd, min_size = 1, max_words = 100, color = "cyan2")
 
-# Word cloud for 2002 and 2017
-nullzwei <- programs[programs$year == 2002] %>% tokens(remove_punct = TRUE) %>% 
-  tokens_remove(stopwords("german"), padding = TRUE) %>% dfm()
-textplot_wordcloud(nullzwei, min_size = 1, max_words = 100, color = "grey4")
-dfmat2 <- dfm(corpus_subset(programs, year %in% c(2002, 2017)),
+years <- dfm(corpus_subset(programs, year %in% c(2002, 2017)),
               remove = stopwords("german"), remove_punct = TRUE, groups = "year") 
-textplot_wordcloud(dfmat2, comparison = TRUE, max_words = 300,
+textplot_wordcloud(years, comparison = TRUE, max_words = 300,
                    color = c("blue", "red"))
 
 
