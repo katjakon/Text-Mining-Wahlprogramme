@@ -1,7 +1,8 @@
+# This code produces some plots to explore the corpus 
 library(quanteda)
 library(readtext)
 
-# Working directoryneeds to be set to same directory as corpus directory for this to work!
+# Working directory needs to be set to same directory as corpus directory for this to work!
 # Read in files and set document level variables
 programs <- readtext("Korpus-Dateien", 
                      docvarsfrom = "filenames",
