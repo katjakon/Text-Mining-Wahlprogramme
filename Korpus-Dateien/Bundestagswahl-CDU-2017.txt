@@ -1038,12 +1038,7 @@ sondern auf die Belebung des öffentlichen und privaten Wohnungsbaus.
 Dazu gehört auch die Schaffung von studentischem Wohnraum.
  Wir werden in der kommenden Wahlperiode keine Maßnahmen beschließen,
 die die Schaffung von Wohnraum zusätzlich verteuern. Wir werden prüfen,
-inwieweit
-durch
-die
-Abschaffung
-überflüssiger
-Vorschriften
+inwieweit durch die Abschaffung überflüssiger Vorschriften
 Kostensenkungspotenziale erschlossen werden können.
  Wir werden den Neubau von Mietwohnungen steuerlich fördern und dafür
 die degressive AfA für einen begrenzten Zeitraum wieder einführen. Im
@@ -1084,7 +1079,6 @@ werden wir die Versorgung noch stärker zuschneiden. Durch eine bessere
 Vernetzung aller an der Versorgung Beteiligten werden wir dafür sorgen,
 dass aus vielen guten medizinischen und pflegerischen Einzelleistungen stets
 auch eine gute Mannschaftsleistung wird. Gerade die Versorgung älterer, oft
-
 mehrfach und chronisch erkrankter Menschen, schwer erkrankter Kinder und
 psychisch Kranker erfordert dies.
  Um weiterhin hervorragende medizinische und pflegerische Qualität anbieten, Notfälle kostendeckend behandeln und die Krankenhaushygiene stärken
@@ -1112,7 +1106,6 @@ wissenschaftsorientierten Arbeitens ebenso wie eine Studienplatzvergabe,
 die neben der Abiturnote weitere Eignungskriterien berücksichtigt.
  Wir stärken die Rechte der Patientinnen und Patienten auch durch
 verständlichere Gesundheitsinformationen und mehr Transparenz im Hinblick auf die Qualität der medizinischen und pflegerischen Leistungen. Deshalb werden wir ein „Nationales Gesundheitsportal“ schaffen, das
-
 wissenschaftlich abgesicherte und verständliche Informationen bündelt und
 im Internet zur Verfügung stellt.
  Die Freiheit der Arztwahl und der Wettbewerb unter Krankenkassen und versicherungen ermöglichen den Patientinnen und Patienten die Auswahl
@@ -1132,12 +1125,7 @@ Wir verstärken die Forschungsanstrengungen zur Entwicklung neuer Antibiotika un
 sparsamen Antibiotika-Einsatz unterstützen.
  Die Möglichkeiten der Digitalisierung im Gesundheitswesen werden wir entschlossen nutzen. Das E-Health-Gesetz ist dazu ein erster wichtiger Schritt:
 Wir sichern den Schutz höchstpersönlicher Daten und geben Patientinnen
-und
-Patienten
-zukünftig
-die
-Möglichkeit,
-wesentliche
+und Patienten zukünftig die Möglichkeit, wesentliche
 Gesundheitsinformationen den behandelnden Ärzten zur Verfügung zu stellen. Das kommt allen zugute und kann Leben retten.
  Mit einer umfassenden Reform der Pflegeversicherung haben wir
 Demenzkranken endlich einen gleichberechtigten Zugang zu allen Leistungen eröffnet und verstärken insbesondere die Unterstützung am Beginn einer Pflegebedürftigkeit. Dadurch stärken wir die pflegenden Angehörigen.
@@ -1167,7 +1155,6 @@ CDU und CSU stehen deshalb dafür ein, dass die Einkommen der Rentnerinnen und
 Rentner auch in Zukunft berechenbar und angemessen sind.
  CDU und CSU bekräftigen die Rentenreform der Großen Koalition von 2007.
 Sie hat die Weichen für die Entwicklung des Renteneintrittsalter bis 67, des
-
 Rentenniveaus und der Rentenbeiträge bis zum Jahr 2030 umfassend und
 erfolgreich gestellt. Damit wurde auch die Generationengerechtigkeit
 verlässlich gesichert.
@@ -1193,15 +1180,9 @@ einen weiteren Schritt zur Vollendung der Deutschen Einheit getan.
  Nachteile deutscher Spätaussiedler in der Rentenversicherung, die sich
 durch Änderungen des Rentenrechts ergeben haben, werden wir beseitigen.
 
-
  Durch das Betriebsrenten-Stärkungsgesetz haben wir die Attraktivität von
 Betriebsrenten
-deutlich
-verbessert,
-auch
-indem
-wir
-die
+deutlich verbessert, auch indem wir die
 Anrechnungsvorschriften bei der Grundsicherung geändert haben.
 Seit einem Vierteljahrhundert hat es für die Rentnerinnen und Rentner keine
 vergleichbar positive Entwicklung gegeben. Diese Entwicklung wollen wir durch ein
@@ -1255,7 +1236,7 @@ Nationalsozialismus. Die Aufarbeitung der NS-Diktatur und ihrer Verbrechen muss
 fortgesetzt werden. Die Erinnerung an erlittenes Unrecht wollen wir nicht nur aus
 Respekt gegenüber den Opfern und ihren Angehörigen wach halten, sondern auch,
 weil es zum historischen Gedächtnis unseres Landes gehört. Das gilt auch für die
-Aufarbeitung des SED-Unrechts in der damaligen DDR. Dafür leistet die StasiUnterlagenbehörde einen unschätzbaren Beitrag. Wir setzen uns für ihren Fortbestand ein.
+Aufarbeitung des SED-Unrechts in der damaligen DDR. Dafür leistet die Stasi-Unterlagenbehörde einen unschätzbaren Beitrag. Wir setzen uns für ihren Fortbestand ein.
 Bedingt durch die im Grundgesetz verankerte Aufgabenverteilung engagieren sich
 Länder und Kommunen im Bereich der Kulturförderung, sie leisten den Löwenanteil. Wir wollen ihnen auch in Zukunft ein verlässlicher Partner sein bei der Pflege
 und Entwicklung unseres reichen kulturellen Erbes und die Vielfalt der Kultur in der
@@ -1403,7 +1384,6 @@ wir manuelle und elektronische Signatur gleichstellen.
  Durch das Bürgerkonto stellen wir sicher, dass jeder Bürger weiß, welche seiner Daten beim Staat verfügbar sind und wer auf diese Daten zugreift.
 Dadurch schaffen wir Datentransparenz und beugen möglichen Missbräuchen vor.
 
-
 Chancen für Wirtschaft und Arbeit
 Viele Arbeits- und Produktionsprozesse werden sich weltweit tiefgreifend verändern. In großer Zahl werden bisherige Arbeitsplätze wegfallen, aber es werden auch
 viele Millionen Arbeitsplätze neu entstehen. Unser Ziel ist klar: Am Ende des
@@ -1457,7 +1437,6 @@ die steuerliche Forschungsförderung und ein Fachkräfte-Zuwanderungsgesetz eben
 wichtigen Stellenwert. Eine flächendeckende, schnelle und erschwingliche
 Zustellung von Briefen und Paketen bleibt ein wichtiges Standortkriterium.
 Bestehende Regulierungen werden wir deshalb überprüfen und gegebenenfalls anpassen.
-
 
  Wir wollen leistungsfähige und sichere digitale Bezahldienste. Auch im
 Zeitalter der Digitalisierung bleibt aber das Bargeld ein wichtiges
@@ -1531,7 +1510,6 @@ gingen für „Pulse of Europe“ auf die Straße, Frankreich und Deutschland si
 zusammengerückt. Diesmal müssen wir die Chance ergreifen und Europa fit machen für Gegenwart und Zukunft.
 Friedensprojekt Europa
 Die Gründung der EU war die Lehre aus den verheerenden Zivilisationskatastrophen des Ersten und des Zweiten Weltkrieges. Seither sind über 60 Jahre vergangen. Seitdem gab es zwischen EU-Mitgliedstaaten keinen einzigen Krieg, keinen
-
 einzigen Ausbruch von Gewalt. Europa ist ein Friedensprojekt. Das ist ein einzigartiger Erfolg, Rechtfertigung und Auftrag zugleich: Wir müssen unsere gemeinsame
 geostrategische Verantwortung für Freiheit und Frieden wahrnehmen und bei der
 Bewältigung von Konflikten in unserer Nachbarschaft mithelfen. Deshalb hat die EU
@@ -1641,7 +1619,6 @@ nicht. Die Union ist und bleibt die Partei der inneren Sicherheit.
  Deutschland ist seit Jahren eines der sichersten Länder der Welt. Das verdanken wir unserer Polizei, unseren Sicherheitsbehörden und Nachrichtendiensten. Ihre Mitarbeiterinnen und Mitarbeiter verrichten ihren anspruchsvollen
 Dienst, nehmen Risiken und Gefahren auf sich, damit wir unser gewohntes
 Leben weiter leben können. Wir sind ihnen zu großem Dank und Anerkennung verpflichtet. Sie haben den Anspruch darauf, dass wir alles tun, um
-
 ihnen die Ausübung ihres Dienstes zu verbessern. Personell, materiell und
 rechtlich, wenn es um die Verabschiedung notwendiger Gesetze geht.
 CDU und CSU haben in dieser Bundesregierung hart gekämpft, um Rechtsänderungen durchzusetzen, die teilweise seit Jahren überfällig waren. Ohne unser
@@ -1693,7 +1670,6 @@ Erscheinungsbildes, der Herkunft oder des Alters eines Straftäters oder
 Verdächtigen heranziehen.
  Wir wollen den Zugang der Sicherheitsbehörden zu vorhandenen Datenbanken erleichtern, wenn es um die Verhinderung oder Aufklärung schwerer
 Straftaten geht. Dazu werden wir ein Datengesetz neu verabschieden, das
-
 sowohl das Informationsinteresse der Sicherheitsbehörden als auch die
 berechtigten Datenschutzinteressen der Betroffenen regeln soll.
  Wir wollen unser Land noch besser gegen Cyber-Angriffe aus dem In- und
@@ -1718,7 +1694,6 @@ gegebenenfalls abzuschieben, deren Anträge auf Asyl rechtskräftig abgelehnt we
 Noch immer ertrinken Menschen bei dem Versuch, insbesondere von Nordafrika
 aus nach Europa zu gelangen. Wir werden die menschenverachtenden Aktivitäten
 der Schleuser energisch bekämpfen und Möglichkeiten schaffen, dass Migranten
-
 ohne Schutzanspruch von der Überfahrt nach Europa abgehalten werden. Gleichzeitig wollen wir helfen, gemeinsam mit internationalen Organisationen ihre
 Lebensbedingungen vor Ort zu verbessern. Nach dem Vorbild des EU-TürkeiAbkommens wollen wir entsprechende Verträge auch mit afrikanischen Ländern
 abschließen. Eine Situation wie im Jahre 2015 soll und darf sich nicht wiederholen,
@@ -1773,7 +1748,6 @@ ihren Zivilangestellten, und werden dafür sorgen, dass sie ihre Aufgaben
 auch künftig erfüllen kann in den Einsätzen weltweit, bei der Bündnis- und
 Landesverteidigung und bei Unterstützungs- und Hilfsmaßnahmen in der
 Heimat.
-
 
  Damit die Bundeswehr diesen Aufgaben gewachsen ist und die Soldatinnen
 und Soldaten die Ausrüstung und die Arbeitsbedingungen erhalten, die sie
@@ -2065,5 +2039,3 @@ dass sie CDU und CSU und der Verlässlichkeit unserer Politik auch künftig vert
 ein Deutschland, in dem wir gut und gerne leben. Damit Angela Merkel
 Bundeskanzlerin unseres Landes bleibt. Daher rufen wir alle Wählerinnen und Wähler auf: Geben Sie bei der Bundestagswahl am 24. September beide Stimmen CDU
 und CSU.
-
-
