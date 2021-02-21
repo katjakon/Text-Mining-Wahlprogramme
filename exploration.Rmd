@@ -79,7 +79,34 @@ textplot_wordcloud(parties, max_words = 100, min_size = 0.5, comparison=TRUE, co
 
 ## Keywords in Context
 
+Mit der `kwic`-Funktion können Token ausgegeben werden, die zusammen mit einem oder mehreren Schlüsselwörtern in einem bestimmten Fenster auftreten. Für das Schlüsselwort `deutsch*` - Der Asterix steht dabei für beliebige Folgezeichen - sieht der Rückgabewert etwa folgendermaßen aus:
+
+```{r kwic_deutsch}
+head(kwic(program_toks,"deutsch*", window=2))
+```
+
+Auch aus dem Rückgabewert der `kwic`- Funktion lassen sich Wortwolken erstellen, die zeigen, mit welchen Token die Schlüsselwörter am häufigsten gemeinsam auftreten. So wird hier ein kleines Wörterbuch für das Thema (`umwelt*`, `klima*`, `nachhalt*`) Klima und Europa (`eu*`, `europ*`) erstellt, Kontextwörter in einem Fenster von 10 Token mithilfe der `kwic`-Funktion ermittelt und diese dann durch `texplot_wordcloud` veranschaulicht.
+
+```{r kwic_klima}
+# climate change dictionary
+climate_dict <- c("klima*", "umwelt*", "nachhalt*")
+
+# Word cloud for climate change dictionary
+klima <- kwic(program_toks,climate_dict, window=10) 
+textplot_wordcloud(klima %>% corpus() %>% dfm(), max_words = 100, color= "chartreuse4")
+```
+
+```{r kwic_eu}
+# eu dictionary
+eu_dict <- c("eu*", "europ*")
+
+# Word cloud for climate change dictionary
+eu <- kwic(program_toks,eu_dict, window=10) 
+textplot_wordcloud(eu%>% corpus() %>% dfm(), max_words = 100)
+```
+
 ### Lexcial Dispersion
+
 
 ## Kollokationen
 
