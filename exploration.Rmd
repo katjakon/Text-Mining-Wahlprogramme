@@ -118,6 +118,17 @@ textplot_xray(eu)
 ```
 
 ## Kollokationen
+Mithilfe der Funktion `textstat_collocations` lassen sich häufige Bigramme im Korpus bestimmen. Zunächst werden häufige Bigramme in Korpus bestimmt, wobei Stoppwörter herausgefiltert worden sind:
+
+```{r collocations_no_stopwords}
+textstat_collocations(program_toks, min_count = 100)
+```
+
+Auch mit Stoppwörtern können interessante Bigramme bebobachtet werden.
+
+```{r collocations_with_stopwords}
+textstat_collocations(programs, min_count = 500)
+```
 
 ## TF-IDF
 Mithilfe von Term-Frequency und Inverted-Document-Frequency lassen sich Terme bestimmen, die für ein Dokument charakteristisch sind. Der Ausgabewert von `dfm_tfidf` ist eine Document-Feature-Matrix, sodass mit den Funktionen `dfm_subset` und `topfeatures` Terme ausgeben werden können, die besonders charakteristisch für eine bestimmte Gruppe sind. Im Folgenden sind auf diese Art kennzeichnende Begriffe für die einzelnen Parteien bestimmt worden: 
