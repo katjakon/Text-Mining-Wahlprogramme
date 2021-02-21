@@ -90,9 +90,6 @@ textplot_wordcloud(eu%>% corpus() %>% dfm(), max_words = 100)
 # Lexical dispersion for european
 textplot_xray(eu)
 
-
-textplot_wordcloud(afd, min_size = 1, max_words = 100, color = "cyan2")
-
 years <- dfm(corpus_subset(programs, year %in% c(2002, 2017)),
               remove = stopwords("german"), remove_punct = TRUE, groups = "year") 
 textplot_wordcloud(years, comparison = TRUE, max_words = 300,
