@@ -34,13 +34,28 @@ programs <- readtext("Korpus-Dateien",
 # Convert characters in year column to integers
 docvars(programs, field="year") <- as.integer(docvars(programs, field="year"))
 ```
-Mit der `summary`- Funktion kann ein erster Überblick über das Korpus gegeben werden. 
+Mit der `summary`- Funktion kann ein erster Überblick über das Korpus gegeben werden. Dabei ist auffällig, dass die Wahlprogramme sich in ihrer Länge mitunter sehr unterscheiden: Beispielsweise ist das Wahlrprogramm der AFD von 2017 nur etwa 450 Token lang, während die meisten anderen Wahlprogramme über 5000 Token lang sind. 
 ```{r Zusammenfassung}
 summary(programs)
 ```
 
+Um das Korpus zu tokenisieren wird die `tokens`-Funktion von `quanteda` genutzt, wobei Satzzeichen und Stoppwörter entfernt werden. Die genutzten Stoppwörter sind in `quanteda` enthalten und umfassen folgende Token:
+
+```{r stoppwoerter}
+stopwords("german")
+```
+Mit der `dfm`-Funktion von `quanteda` wird zudem eine Document-Feature-Matrix erstellt werden.
+
+```{r tokens_dfm}
+# Create tokens object for whole corpus
+program_toks <- tokens(programs,remove_punct = TRUE) %>% tokens_remove(stopwords("german"), padding = TRUE )
+# Create dfm for corpus
+program_dfm <- dfm(program_toks)
+```
+
 
 ## Bag of Words
+
 
 ## Keywords in Context
 
