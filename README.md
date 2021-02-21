@@ -3,6 +3,17 @@ Ein Projekt für das Seminar _Textanalyse in den Politikwissenschaften_
 
 [Präsentation](https://docs.google.com/presentation/d/1S3XjOZWsYbwYUq6oq7j6dd7jrSep3JgbEnmJNYTJdJ0/edit?ts=60193877#slide=id.p)
 # Idee und Fragestellung
+
+In Wahlprogrammen stellen Parteien ihre Meinung und Ausrichtung dar und positionieren sich klar zu Themen, die ihnen wichtig erscheinen.<br>
+Das wirft unter anderem folgende Fragen auf:
+
++ Gibt es Begriffe, die __typisch für bestimmte Parteien/Ausrichtungen__ sind?
++ Welche __Themen__ werden in Wahlprogrammen behandelt?
++ Wie __präsent__ sind bestimmte Themen in Wahlprogrammen?
++ Wie werden Themen wie Europa und Klimawandel __über Parteien und Zeit hinweg__ dargestellt?
++ Stellen Parteien, die zum Zeitpunkt der Wahl an der Regierung beteiligt waren, die Lage in Deutschland positiver dar?
+
+
 # Korpus
 Das Korpus enthält Wahlprogramme zur Bundestagswahl von 2002 bis 2017. Die Originale als PDF-Dateien sind hier abrufbar:
 + [CDU](https://www.kas.de/de/web/geschichte-der-cdu/wahlprogramme-und-slogans)
