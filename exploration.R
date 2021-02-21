@@ -2,6 +2,9 @@
 library(quanteda)
 library(readtext)
 
+#######################
+### First Steps #######
+#######################
 # Working directory needs to be set to same directory as corpus directory for this to work!
 # Read in files and set document level variables
 programs <- readtext("Korpus-Dateien", 
@@ -9,23 +12,31 @@ programs <- readtext("Korpus-Dateien",
                      docvarnames = c("type", "party", "year"),
                      dvsep = "-",
                      encoding="utf-8") %>% corpus()
+
 # Convert characters in year column to integers
 docvars(programs, field="year") <- as.integer(docvars(programs, field="year"))
-
+summary(programs)
 # Create tokens object for whole corpus
 program_toks <- tokens(programs,remove_punct = TRUE) %>% tokens_remove(stopwords("german"), padding = TRUE )
+# Create dfm for corpus
+program_dfm <- dfm(program_toks)
 
-# Word cloud for deutsch* and whole corpus
-deutsch <- kwic(program_toks,"deutsch*", window=10) %>% corpus() %>% dfm()
-textplot_wordcloud(deutsch, max_words = 100)
 
-# Word cloud for umwelt*, klima* and whole corpus
-klima <- kwic(program_toks,c("klima*", "umwelt*"), window=10) %>% corpus() %>% dfm()
-textplot_wordcloud(klima, max_words = 100)
+#######################
+### Bag of words ######
+#######################
 
-# Word cloud for eu* and europ* and whole corpus
-eu <- kwic(program_toks,c("eu*", "europ*"), window=10) %>% corpus() %>% dfm()
-textplot_wordcloud(eu, max_words = 100)
+set.seed(2021)
+# word cloud for whole corpus
+textplot_wordcloud(program_dfm, max_words = 100, min_size = 1.7, color = "darkslategrey")
+topfeatures(program_dfm, n = 100)
+
+# Compare parties and years
+years <- dfm(program_toks, groups = "year")
+textplot_wordcloud(years, max_words = 100, min_size = 0.5, comparison=TRUE, color=c("darkolivegreen", "cadetblue4", "deeppink3", "darkorange", "darkred"))
+
+parties <- dfm(program_toks, groups = "party")
+textplot_wordcloud(parties, max_words = 100, min_size = 0.5, comparison=TRUE, color=c("blue3", "darkgreen", "black", "red", "deeppink", "darkred", "brown2"))
 
 # Word cloud for parties
 cdu <-  programs[programs$party == "CDU"] %>% tokens(remove_punct = TRUE) %>% 
@@ -50,6 +61,36 @@ textplot_wordcloud(gruene, min_size = 1, max_words = 100, color = "green4")
 
 afd <- programs[programs$party == "AfD"] %>% tokens(remove_punct = TRUE) %>% 
   tokens_remove(stopwords("german"), padding = TRUE) %>% dfm()
+
+#######################
+# Keywords in Context #
+#######################
+
+# Word cloud for deutsch* and whole corpus
+deutsch <- kwic(program_toks,"deutsch*", window=10) %>% corpus() %>% dfm()
+textplot_wordcloud(deutsch, max_words = 100)
+
+# climate change dictionary
+climate_dict <- c("klima*", "umwelt*", "nachhalt*")
+
+# Word cloud for climate change dictionary
+klima <- kwic(program_toks,climate_dict, window=10) 
+textplot_wordcloud(klima %>% corpus() %>% dfm(), max_words = 100, color= "chartreuse4")
+
+# Lexical dispersion plot for climate 
+textplot_xray(klima)
+
+# eu dictionary
+eu_dict <- c("eu*", "europ*")
+
+# Word cloud for climate change dictionary
+eu <- kwic(program_toks,eu_dict, window=10) 
+textplot_wordcloud(eu%>% corpus() %>% dfm(), max_words = 100)
+
+# Lexical dispersion for european
+textplot_xray(eu)
+
+
 textplot_wordcloud(afd, min_size = 1, max_words = 100, color = "cyan2")
 
 years <- dfm(corpus_subset(programs, year %in% c(2002, 2017)),
@@ -57,7 +98,57 @@ years <- dfm(corpus_subset(programs, year %in% c(2002, 2017)),
 textplot_wordcloud(years, comparison = TRUE, max_words = 300,
                    color = c("blue", "red"))
 
-# Similarity 
-# Why are they so similar??
-progr_simil <- textstat_simil(dfm(programs), margin = "documents", method = 'cosine')
-progr_simil
+
+#######################
+#### Collocations #####
+#######################
+
+# With stopwords
+textstat_collocations(programs, min_count = 500)
+
+# Without stopwords
+textstat_collocations(program_toks, min_count = 100)
+
+#######################
+####### TF-IDF ########
+#######################
+
+tfidf <- dfm_tfidf(program_toks %>% dfm())
+
+# Distinctive terms for each party
+afd <- dfm_subset(tfidf, tfidf$"party"=="AfD")
+topfeatures(afd, n=10)
+
+spd <- dfm_subset(tfidf, tfidf$"party"=="SPD")
+topfeatures(spd, n=10)
+
+cdu <- dfm_subset(tfidf, tfidf$"party"=="CDU")
+topfeatures(cdu, n=10)
+
+linke <- dfm_subset(tfidf, tfidf$"party"=="DIELINKE")
+topfeatures(linke, n=10)
+
+gruene <- dfm_subset(tfidf, tfidf$"party"=="B90dieGruene")
+topfeatures(gruene, n=10)
+
+fdp <- dfm_subset(tfidf, tfidf$"party"=="FDP")
+topfeatures(fdp, n=10)
+
+pds <- dfm_subset(tfidf, tfidf$"party"=="PDS")
+topfeatures(pds, n=10)
+
+# Distinctive terms for each year
+year_2002 <- dfm_subset(tfidf, tfidf$"year"==2002)
+topfeatures(year_2002)
+
+year_2005 <- dfm_subset(tfidf, tfidf$"year"==2005)
+topfeatures(year_2005, n=20)
+
+year_2009 <- dfm_subset(tfidf, tfidf$"year"==2009)
+topfeatures(year_2009, n=20)
+
+year_2013 <- dfm_subset(tfidf, tfidf$"year"==2013)
+topfeatures(year_2013, n=20)
+
+year_2017 <- dfm_subset(tfidf, tfidf$"year"==2017)
+topfeatures(year_2017, n=20)
