@@ -64,6 +64,19 @@ set.seed(2021)
 textplot_wordcloud(program_dfm, max_words = 100, min_size = 1.7, color = "darkslategrey")
 ```
 
+Die Funktion `texplot_wordcloud` besitzt einen optionalen Parameter `comparison`, der es erlaubt, vergleichende Wortwolken zu erstellen. Dabei werden für eine Gruppe die Token ausgewählt, die im Vergleich zu den anderen Gruppen häufig vorkommen. Genaueres ist [hier in der Dokumentation](https://www.rdocumentation.org/packages/wordcloud/versions/2.6/topics/comparison.cloud) nachlesbar.
+So wurden vergleichende Wortwolken für die verschiedenen Parteien und die Jahre erstellt.
+
+```{r wortwolke_years}
+years <- dfm(program_toks, groups = "year")
+textplot_wordcloud(years, max_words = 100, min_size = 0.5, comparison=TRUE, color=c("darkolivegreen", "cadetblue4", "deeppink3", "darkorange", "darkred"))
+```
+
+```{r wortwolke_party}
+parties <- dfm(program_toks, groups = "party")
+textplot_wordcloud(parties, max_words = 100, min_size = 0.5, comparison=TRUE, color=c("blue3", "darkgreen", "black", "red", "deeppink", "darkred", "brown2"))
+```
+
 ## Keywords in Context
 
 ### Lexcial Dispersion
