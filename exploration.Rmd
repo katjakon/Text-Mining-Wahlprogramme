@@ -107,9 +107,75 @@ textplot_wordcloud(eu%>% corpus() %>% dfm(), max_words = 100)
 
 ### Lexcial Dispersion
 
+Aus `kwic`- Objekten lassen sich zudem Plots erstellen, die zeigen wie die Schlüsselwörter in den Dokumenten verteilt sind. Dafür werden die gleichen `kwic`-Objekte `klima` und `eu` verwendet.
+
+```{r dispersion_klima}
+textplot_xray(klima)
+```
+
+```{r dispersion_eu}
+textplot_xray(eu)
+```
 
 ## Kollokationen
 
 ## TF-IDF
+Mithilfe von Term-Frequency und Inverted-Document-Frequency lassen sich Terme bestimmen, die für ein Dokument charakteristisch sind. Der Ausgabewert von `dfm_tfidf` ist eine Document-Feature-Matrix, sodass mit den Funktionen `dfm_subset` und `topfeatures` Terme ausgeben werden können, die besonders charakteristisch für eine bestimmte Gruppe sind. Im Folgenden sind auf diese Art kennzeichnende Begriffe für die einzelnen Parteien bestimmt worden: 
 
+```{r tfidf}
+tfidf_programs <- dfm_tfidf(program_dfm)
+
+# Distinctive terms for afd programs
+afd <- dfm_subset(tfidf_programs, tfidf_programs$"party"=="AfD")
+topfeatures(afd, n=20)
+
+# Distinctive terms for spd programs
+spd <- dfm_subset(tfidf_programs,tfidf_programs$"party"=="SPD")
+topfeatures(spd, n=20)
+
+# Distinctive terms for cdu programs
+cdu <- dfm_subset(tfidf_programs, tfidf_programs$"party"=="CDU")
+topfeatures(cdu, n=20)
+
+# Distinctive terms for DIE LINKE programs
+linke <- dfm_subset(tfidf_programs, tfidf_programs$"party"=="DIELINKE")
+topfeatures(linke, n=20)
+
+# Distinctive terms for Die Gruene programs
+gruene <- dfm_subset(tfidf_programs, tfidf_programs$"party"=="B90dieGruene")
+topfeatures(gruene, n=20)
+
+# Distinctive terms for FDP programs
+fdp <- dfm_subset(tfidf_programs, tfidf_programs$"party"=="FDP")
+topfeatures(fdp, n=20)
+
+# Distinctive terms for PDS programs
+pds <- dfm_subset(tfidf_programs, tfidf_programs$"party"=="PDS")
+topfeatures(pds, n=20)
+
+```
+
+Mit dem gleichen Verfahren sind distinktive Begriffe für die einzelnen Jahren bestimmt worden:
+
+```{r tfidf_years}
+# Distinctive terms for the year 2002
+year_2002 <- dfm_subset(tfidf_programs, tfidf_programs$"year"==2002)
+topfeatures(year_2002, n=20)
+
+# Distinctive terms for the year 2005
+year_2005 <- dfm_subset(tfidf_programs, tfidf_programs$"year"==2005)
+topfeatures(year_2005, n=20)
+
+# Distinctive terms for the year 2009
+year_2009 <- dfm_subset(tfidf_programs, tfidf_programs$"year"==2009)
+topfeatures(year_2009, n=20)
+
+# Distinctive terms for the year 2013
+year_2013 <- dfm_subset(tfidf_programs, tfidf_programs$"year"==2013)
+topfeatures(year_2013, n=20)
+
+# Distinctive terms for the year 2017
+year_2017 <- dfm_subset(tfidf_programs, tfidf_programs$"year"==2017)
+topfeatures(year_2017, n=20)
+```
 ## Topic Modelling
