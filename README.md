@@ -33,6 +33,6 @@ Die Dateien wurden mithilfe von `pdftotext` und optical character recognition in
 + Entfernung von Seitenumbrüchen 
 + Entfernung von Worttrennungen
 + Korrektur von falsch erkannten Zeichen
-+ Korrektur von vertauschten Absätzen durch zweiseitiges Layout
++ Korrektur von vertauschten Absätzen durch zweispaltiges Layout
 
 # Ergebnisse
