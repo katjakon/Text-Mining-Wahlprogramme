@@ -1,0 +1,192 @@
+---
+title: "Untersuchungen der Wahlprogramme zur Bundestagswahl"
+author: "Anina Klaus, Katja Konermann und Niklas Stepczynski"
+output: html_document
+---
+```{r set-options, echo=FALSE, cache=FALSE}
+options(width = 100)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Erste Schritte
+
+Das Korpus wurde mithilfe der Bibliothek `quanteda` untersucht. Außerdem wird die Bibliothek `readtext` benötigt, um die Textdateien einlesen zu können.
+
+```{r library, message=FALSE}
+library(quanteda)
+library(readtext)
+```
+
+Um das Korpus einlesen zu können, muss sich der Ordner `Korpus-Dateien` mit den Wahlprogrammen im aktuellen Arbeitsverzeichnis befinden. Die Namen der Dateien sind nach dem folgenden Muster aufgebaut: `<Wahl>-<Partei>-<Jahr>`. Das Wahlprogramm der CDU zur Bundestagswahl von 2017 ist zum Beispiel in der Datei `Bundestagswahl-CDU-2017` gespeichert. Mithilfe von `readtext` können aus den Dateinamen so Document Level Variables erstellt werden, die das Filtern nach Parteien und Jahren vereinfachen. <br>
+Zusätzlich wird die Spalte `year` in numerische Werte konvertiert, um auch Vergleiche wie etwa Wahlprogramme vor 2009 zu ermöglichen.
+
+```{r Einlesen}
+# Read in files and set document level variables
+programs <- readtext("Korpus-Dateien", 
+                     docvarsfrom = "filenames",
+                     docvarnames = c("type", "party", "year"),
+                     dvsep = "-",
+                     encoding="utf-8") %>% corpus()
+
+# Convert characters in year column to integers
+docvars(programs, field="year") <- as.integer(docvars(programs, field="year"))
+```
+Mit der `summary`- Funktion kann ein erster Überblick über das Korpus gegeben werden. Dabei ist auffällig, dass die Wahlprogramme sich in ihrer Länge mitunter sehr unterscheiden: Beispielsweise ist das Wahlrprogramm der AFD von 2017 nur etwa 450 Token lang, während die meisten anderen Wahlprogramme über 5000 Token lang sind. 
+```{r Zusammenfassung}
+summary(programs)
+```
+
+Um das Korpus zu tokenisieren wird die `tokens`-Funktion von `quanteda` genutzt, wobei Satzzeichen und Stoppwörter entfernt werden. Die genutzten Stoppwörter sind in `quanteda` enthalten und umfassen folgende Token:
+
+```{r stoppwoerter}
+stopwords("german")
+```
+Mit der `dfm`-Funktion von `quanteda` wird zudem eine Document-Feature-Matrix erstellt werden.
+
+```{r tokens_dfm}
+# Create tokens object for whole corpus
+program_toks <- tokens(programs,remove_punct = TRUE) %>% tokens_remove(stopwords("german"), padding = TRUE )
+# Create dfm for corpus
+program_dfm <- dfm(program_toks)
+```
+
+
+## Bag of Words
+
+Mithilfe der Funktion `topfeatures` lassen sich aus einer `DFM` die n häufigsten Token extrahieren. Diese Token können auch mit `textplot_wordcloud` as Wortwolke dargestellt werden. 
+
+```{r wortwolke_whole}
+set.seed(2021)
+# word cloud for whole corpus
+textplot_wordcloud(program_dfm, max_words = 100, min_size = 1.7, color = "darkslategrey")
+```
+
+Die Funktion `texplot_wordcloud` besitzt einen optionalen Parameter `comparison`, der es erlaubt, vergleichende Wortwolken zu erstellen. Dabei werden für eine Gruppe die Token ausgewählt, die im Vergleich zu den anderen Gruppen häufig vorkommen. Genaueres ist [hier in der Dokumentation](https://www.rdocumentation.org/packages/wordcloud/versions/2.6/topics/comparison.cloud) nachlesbar.
+So wurden vergleichende Wortwolken für die verschiedenen Parteien und die Jahre erstellt.
+
+```{r wortwolke_years}
+years <- dfm(program_toks, groups = "year")
+textplot_wordcloud(years, max_words = 100, min_size = 0.5, comparison=TRUE, color=c("darkolivegreen", "cadetblue4", "deeppink3", "darkorange", "darkred"))
+```
+
+```{r wortwolke_party}
+parties <- dfm(program_toks, groups = "party")
+textplot_wordcloud(parties, max_words = 100, min_size = 0.5, comparison=TRUE, color=c("blue3", "darkgreen", "black", "red", "deeppink", "darkred", "brown2"))
+```
+
+## Keywords in Context
+
+Mit der `kwic`-Funktion können Token ausgegeben werden, die zusammen mit einem oder mehreren Schlüsselwörtern in einem bestimmten Fenster auftreten. Für das Schlüsselwort `deutsch*` - Der Asterix steht dabei für beliebige Folgezeichen - sieht der Rückgabewert etwa folgendermaßen aus:
+
+```{r kwic_deutsch}
+head(kwic(program_toks,"deutsch*", window=2))
+```
+
+Auch aus dem Rückgabewert der `kwic`- Funktion lassen sich Wortwolken erstellen, die zeigen, mit welchen Token die Schlüsselwörter am häufigsten gemeinsam auftreten. So wird hier ein kleines Wörterbuch für das Thema (`umwelt*`, `klima*`, `nachhalt*`) Klima und Europa (`eu*`, `europ*`) erstellt, Kontextwörter in einem Fenster von 10 Token mithilfe der `kwic`-Funktion ermittelt und diese dann durch `texplot_wordcloud` veranschaulicht.
+
+```{r kwic_klima}
+# climate change dictionary
+climate_dict <- c("klima*", "umwelt*", "nachhalt*")
+
+# Word cloud for climate change dictionary
+klima <- kwic(program_toks,climate_dict, window=10) 
+textplot_wordcloud(klima %>% corpus() %>% dfm(), max_words = 100, color= "chartreuse4")
+```
+
+```{r kwic_eu}
+# eu dictionary
+eu_dict <- c("eu*", "europ*")
+
+# Word cloud for climate change dictionary
+eu <- kwic(program_toks,eu_dict, window=10) 
+textplot_wordcloud(eu%>% corpus() %>% dfm(), max_words = 100)
+```
+
+### Lexcial Dispersion
+
+Aus `kwic`- Objekten lassen sich zudem Plots erstellen, die zeigen wie die Schlüsselwörter in den Dokumenten verteilt sind. Dafür werden die gleichen `kwic`-Objekte `klima` und `eu` verwendet.
+
+```{r dispersion_klima}
+textplot_xray(klima)
+```
+
+```{r dispersion_eu}
+textplot_xray(eu)
+```
+
+## Kollokationen
+Mithilfe der Funktion `textstat_collocations` lassen sich häufige Bigramme im Korpus bestimmen. Zunächst werden häufige Bigramme in Korpus bestimmt, wobei Stoppwörter herausgefiltert worden sind:
+
+```{r collocations_no_stopwords}
+textstat_collocations(program_toks, min_count = 100)
+```
+
+Auch mit Stoppwörtern können interessante Bigramme bebobachtet werden.
+
+```{r collocations_with_stopwords}
+textstat_collocations(programs, min_count = 500)
+```
+
+## TF-IDF
+Mithilfe von Term-Frequency und Inverted-Document-Frequency lassen sich Terme bestimmen, die für ein Dokument charakteristisch sind. Der Ausgabewert von `dfm_tfidf` ist eine Document-Feature-Matrix, sodass mit den Funktionen `dfm_subset` und `topfeatures` Terme ausgeben werden können, die besonders charakteristisch für eine bestimmte Gruppe sind. Im Folgenden sind auf diese Art kennzeichnende Begriffe für die einzelnen Parteien bestimmt worden: 
+
+```{r tfidf}
+tfidf_programs <- dfm_tfidf(program_dfm)
+
+# Distinctive terms for afd programs
+afd <- dfm_subset(tfidf_programs, tfidf_programs$"party"=="AfD")
+topfeatures(afd, n=20)
+
+# Distinctive terms for spd programs
+spd <- dfm_subset(tfidf_programs,tfidf_programs$"party"=="SPD")
+topfeatures(spd, n=20)
+
+# Distinctive terms for cdu programs
+cdu <- dfm_subset(tfidf_programs, tfidf_programs$"party"=="CDU")
+topfeatures(cdu, n=20)
+
+# Distinctive terms for DIE LINKE programs
+linke <- dfm_subset(tfidf_programs, tfidf_programs$"party"=="DIELINKE")
+topfeatures(linke, n=20)
+
+# Distinctive terms for Die Gruene programs
+gruene <- dfm_subset(tfidf_programs, tfidf_programs$"party"=="B90dieGruene")
+topfeatures(gruene, n=20)
+
+# Distinctive terms for FDP programs
+fdp <- dfm_subset(tfidf_programs, tfidf_programs$"party"=="FDP")
+topfeatures(fdp, n=20)
+
+# Distinctive terms for PDS programs
+pds <- dfm_subset(tfidf_programs, tfidf_programs$"party"=="PDS")
+topfeatures(pds, n=20)
+
+```
+
+Mit dem gleichen Verfahren sind distinktive Begriffe für die einzelnen Jahren bestimmt worden:
+
+```{r tfidf_years}
+# Distinctive terms for the year 2002
+year_2002 <- dfm_subset(tfidf_programs, tfidf_programs$"year"==2002)
+topfeatures(year_2002, n=20)
+
+# Distinctive terms for the year 2005
+year_2005 <- dfm_subset(tfidf_programs, tfidf_programs$"year"==2005)
+topfeatures(year_2005, n=20)
+
+# Distinctive terms for the year 2009
+year_2009 <- dfm_subset(tfidf_programs, tfidf_programs$"year"==2009)
+topfeatures(year_2009, n=20)
+
+# Distinctive terms for the year 2013
+year_2013 <- dfm_subset(tfidf_programs, tfidf_programs$"year"==2013)
+topfeatures(year_2013, n=20)
+
+# Distinctive terms for the year 2017
+year_2017 <- dfm_subset(tfidf_programs, tfidf_programs$"year"==2017)
+topfeatures(year_2017, n=20)
+```
+## Topic Modelling
