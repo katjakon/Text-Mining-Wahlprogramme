@@ -1,6 +1,7 @@
 # This code produces some plots to explore the corpus 
 library(quanteda)
 library(readtext)
+library(seededlda)
 
 #######################
 ### First Steps #######
