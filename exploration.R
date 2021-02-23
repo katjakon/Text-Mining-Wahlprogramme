@@ -63,6 +63,38 @@ afd <- programs[programs$party == "AfD"] %>% tokens(remove_punct = TRUE) %>%
   tokens_remove(stopwords("german"), padding = TRUE) %>% dfm()
 
 #######################
+### Topic Modeling ####
+#######################
+
+# whole corpus, 6 topics
+program_lda_k6 <- textmodel_lda(program_dfm, k=6)
+terms(program_lda_k6)
+
+# topics from DIELINKE programs
+dielinke_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "DIELINKE"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
+terms(dielinke_lda_k20)
+
+# topics from B90/Die Grüne programs
+gruene_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "B90dieGruene"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
+terms(gruene_lda_k20)
+
+# topics from SPD programs
+spd_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "SPD"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
+terms(spd_lda_k20)
+
+# topics from CDU programs
+cdu_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "CDU"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
+terms(cdu_lda_k20)
+
+#  topics from AfD programs
+afd_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "AfD"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
+terms(afd_lda_k20)
+
+#  topics from FDP programs
+fdp_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "FDP"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
+terms(fdp_lda_k20)
+
+#######################
 # Keywords in Context #
 #######################
 
