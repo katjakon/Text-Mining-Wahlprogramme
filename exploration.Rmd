@@ -59,6 +59,7 @@ program_dfm <- dfm(program_toks)
 Mithilfe der Funktion `topfeatures` lassen sich aus einer `DFM` die n häufigsten Token extrahieren. Diese Token können auch mit `textplot_wordcloud` as Wortwolke dargestellt werden. 
 
 ```{r wortwolke_whole}
+topfeatures(program_dfm, n = 100)
 set.seed(2021)
 # word cloud for whole corpus
 textplot_wordcloud(program_dfm, max_words = 100, min_size = 1.7, color = "darkslategrey")
