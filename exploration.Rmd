@@ -196,8 +196,8 @@ topfeatures(year_2017, n=20)
 Um Topic Models zu erstellen, muss aus einer DFM ein LDA-Objekt erstellt werden ("Latent Dirichlet Allocation"). Über terms() kann man die Topics abrufen.
 
 ```{r topic_models_general}
-program_lda_k6 <- textmodel_lda(program_dfm, k=6)
-terms(program_lda_k6)
+program_lda_k10 <- textmodel_lda(program_dfm, k=10)
+terms(program_lda_k10)
 ```
 
 Für die einzelnen Parteien wie folgt (k ist hier höher, da sich sonst keine abzugrenzenden Topics zeigen):
