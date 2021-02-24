@@ -194,34 +194,10 @@ program_lda_k10 <- textmodel_lda(program_dfm, k=10)
 terms(program_lda_k10)
 ```
 
-Für die einzelnen Parteien wie folgt (k ist hier höher, da sich sonst keine abzugrenzenden Topics zeigen):
+Für die einzelnen Parteien wie folgt (hier nur exemplarisch, da sich keine all zu aussagekräftigen Ergebnisse gezeigt haben):
 
 ```{r topic_models_programs}
-# topics from DIELINKE programs
-dielinke_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "DIELINKE"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
-terms(dielinke_lda_k20)
-
-# topics from PDS programs
-pds_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "PDS"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
-terms(pds_lda_k20)
-
 # topics from B90/Die Grüne programs
 gruene_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "B90dieGruene"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
 terms(gruene_lda_k20)
-
-# topics from SPD programs
-spd_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "SPD"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
-terms(spd_lda_k20)
-
-# topics from CDU programs
-cdu_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "CDU"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
-terms(cdu_lda_k20)
-
-#  topics from AfD programs
-afd_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "AfD"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
-terms(afd_lda_k20)
-
-#  topics from FDP programs
-fdp_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "FDP"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
-terms(fdp_lda_k20)
 ```
