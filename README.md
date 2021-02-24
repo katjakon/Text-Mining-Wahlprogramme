@@ -1,7 +1,6 @@
 # Text-Mining-Wahlprogramme
 Ein Projekt für das Seminar _Textanalyse in den Politikwissenschaften_
 
-[Präsentation](https://docs.google.com/presentation/d/1S3XjOZWsYbwYUq6oq7j6dd7jrSep3JgbEnmJNYTJdJ0/edit?ts=60193877#slide=id.p)
 # Idee und Fragestellung
 
 In Wahlprogrammen stellen Parteien ihre Meinung und Ausrichtung dar und positionieren sich klar zu Themen, die ihnen wichtig erscheinen.<br>
@@ -36,4 +35,7 @@ Die Dateien wurden mithilfe von `pdftotext` und optical character recognition in
 + Korrektur von vertauschten Absätzen durch zweispaltiges Layout
 
 # Erste Ergebnisse
+## Vergleich von häufigen Termen zwischen den Parteien
 ![Vergleich von Parteien](/exploration_plots/comparison_parties.png)
+## Vergleich von häufigen Termen zwischen den Jahren
+![Vergleich von Parteien](/exploration_plots/comparison_years.png)
