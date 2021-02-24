@@ -67,9 +67,9 @@ afd <- programs[programs$party == "AfD"] %>% tokens(remove_punct = TRUE) %>%
 ### Topic Modeling ####
 #######################
 
-# whole corpus, 6 topics
-program_lda_k6 <- textmodel_lda(program_dfm, k=6)
-terms(program_lda_k6)
+# whole corpus, 10 topics
+program_lda_k10 <- textmodel_lda(program_dfm, k=10)
+terms(program_lda_k10)
 
 # topics from DIELINKE programs
 dielinke_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "DIELINKE"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
