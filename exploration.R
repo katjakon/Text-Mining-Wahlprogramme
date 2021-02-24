@@ -1,4 +1,5 @@
-# This code produces some plots to explore the corpus 
+# This code explores the corpus 
+# For explanation see exploration.Rmd
 library(quanteda)
 library(readtext)
 library(seededlda)
