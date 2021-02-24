@@ -144,8 +144,8 @@ textstat_collocations(program_toks, min_count = 100)
 ####### TF-IDF ########
 #######################
 
-tfidf <- dfm_tfidf(program_toks %>% dfm())
-
+tfidf <- dfm_tfidf(program_toks %>% dfm(groups = "party"))
+topfeatures(tfidf[1,])
 # Distinctive terms for each party
 afd <- dfm_subset(tfidf, tfidf$"party"=="AfD")
 topfeatures(afd, n=10)
@@ -169,6 +169,8 @@ pds <- dfm_subset(tfidf, tfidf$"party"=="PDS")
 topfeatures(pds, n=10)
 
 # Distinctive terms for each year
+tfidf_year <- dfm_tfidf(program_toks %>% dfm(groups = "year"))
+
 year_2002 <- dfm_subset(tfidf, tfidf$"year"==2002)
 topfeatures(year_2002)
 
