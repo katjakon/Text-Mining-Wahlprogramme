@@ -35,4 +35,5 @@ Die Dateien wurden mithilfe von `pdftotext` und optical character recognition in
 + Korrektur von falsch erkannten Zeichen
 + Korrektur von vertauschten Absätzen durch zweispaltiges Layout
 
-# Ergebnisse
+# Erste Ergebnisse
+![Vergleich von Parteien](/exploration_plots/comparison_parties.png)
