@@ -136,60 +136,54 @@ textstat_collocations(programs, min_count = 500)
 Mithilfe von Term-Frequency und Inverted-Document-Frequency lassen sich Terme bestimmen, die für ein Dokument charakteristisch sind. Der Ausgabewert von `dfm_tfidf` ist eine Document-Feature-Matrix, sodass mit den Funktionen `dfm_subset` und `topfeatures` Terme ausgeben werden können, die besonders charakteristisch für eine bestimmte Gruppe sind. Im Folgenden sind auf diese Art kennzeichnende Begriffe für die einzelnen Parteien bestimmt worden: 
 
 ```{r tfidf}
-tfidf_programs <- dfm_tfidf(program_dfm)
+tfidf <- dfm_tfidf(program_toks %>% dfm(groups = "party"))
+topfeatures(tfidf[1,])
+# Distinctive terms for each party
+afd <- dfm_subset(tfidf, tfidf$"party"=="AfD")
+topfeatures(afd, n=10)
 
-# Distinctive terms for afd programs
-afd <- dfm_subset(tfidf_programs, tfidf_programs$"party"=="AfD")
-topfeatures(afd, n=20)
+spd <- dfm_subset(tfidf, tfidf$"party"=="SPD")
+topfeatures(spd, n=10)
 
-# Distinctive terms for spd programs
-spd <- dfm_subset(tfidf_programs,tfidf_programs$"party"=="SPD")
-topfeatures(spd, n=20)
+cdu <- dfm_subset(tfidf, tfidf$"party"=="CDU")
+topfeatures(cdu, n=10)
 
-# Distinctive terms for cdu programs
-cdu <- dfm_subset(tfidf_programs, tfidf_programs$"party"=="CDU")
-topfeatures(cdu, n=20)
+linke <- dfm_subset(tfidf, tfidf$"party"=="DIELINKE")
+topfeatures(linke, n=10)
 
-# Distinctive terms for DIE LINKE programs
-linke <- dfm_subset(tfidf_programs, tfidf_programs$"party"=="DIELINKE")
-topfeatures(linke, n=20)
+gruene <- dfm_subset(tfidf, tfidf$"party"=="B90dieGruene")
+topfeatures(gruene, n=10)
 
-# Distinctive terms for Die Gruene programs
-gruene <- dfm_subset(tfidf_programs, tfidf_programs$"party"=="B90dieGruene")
-topfeatures(gruene, n=20)
+fdp <- dfm_subset(tfidf, tfidf$"party"=="FDP")
+topfeatures(fdp, n=10)
 
-# Distinctive terms for FDP programs
-fdp <- dfm_subset(tfidf_programs, tfidf_programs$"party"=="FDP")
-topfeatures(fdp, n=20)
+pds <- dfm_subset(tfidf, tfidf$"party"=="PDS")
+topfeatures(pds, n=10)
 
-# Distinctive terms for PDS programs
-pds <- dfm_subset(tfidf_programs, tfidf_programs$"party"=="PDS")
-topfeatures(pds, n=20)
 
 ```
 
 Mit dem gleichen Verfahren sind distinktive Begriffe für die einzelnen Jahren bestimmt worden:
 
 ```{r tfidf_years}
-# Distinctive terms for the year 2002
-year_2002 <- dfm_subset(tfidf_programs, tfidf_programs$"year"==2002)
+# Distinctive terms for each year
+tfidf_year <- dfm_tfidf(program_toks %>% dfm(groups = "year"))
+
+year_2002 <- dfm_subset(tfidf_year, tfidf_year$"year"==2002)
 topfeatures(year_2002, n=20)
 
-# Distinctive terms for the year 2005
-year_2005 <- dfm_subset(tfidf_programs, tfidf_programs$"year"==2005)
+year_2005 <- dfm_subset(tfidf_year, tfidf_year$"year"==2005)
 topfeatures(year_2005, n=20)
 
-# Distinctive terms for the year 2009
-year_2009 <- dfm_subset(tfidf_programs, tfidf_programs$"year"==2009)
+year_2009 <- dfm_subset(tfidf_year, tfidf_year$"year"==2009)
 topfeatures(year_2009, n=20)
 
-# Distinctive terms for the year 2013
-year_2013 <- dfm_subset(tfidf_programs, tfidf_programs$"year"==2013)
+year_2013 <- dfm_subset(tfidf_year, tfidf_year$"year"==2013)
 topfeatures(year_2013, n=20)
 
-# Distinctive terms for the year 2017
-year_2017 <- dfm_subset(tfidf_programs, tfidf_programs$"year"==2017)
+year_2017 <- dfm_subset(tfidf_year, tfidf_year$"year"==2017)
 topfeatures(year_2017, n=20)
+
 ```
 ## Topic Modelling
 
