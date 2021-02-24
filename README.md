@@ -35,7 +35,7 @@ Die Dateien wurden mithilfe von `pdftotext` und optical character recognition in
 + Korrektur von vertauschten Absätzen durch zweispaltiges Layout
 
 # Erste Ergebnisse
-Erklärungen zum Code sind[hier](https://katjakon.github.io/Text-Mining-Wahlprogramme/) zu finden.
+Erklärungen zum Code sind [hier](https://katjakon.github.io/Text-Mining-Wahlprogramme/) zu finden.
 ## Vergleich von häufigen Termen zwischen den Parteien
 ![Vergleich von Parteien](/exploration_plots/comparison_parties.png)
 ## Vergleich von häufigen Termen zwischen den Jahren
