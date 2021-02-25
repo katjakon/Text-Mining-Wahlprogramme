@@ -96,6 +96,14 @@ terms(afd_lda_k20)
 fdp_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "FDP"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
 terms(fdp_lda_k20)
 
+# topics from 2002
+programs_2002_lda <- textmodel_lda(dfm(programs[programs$"year" == 2002], remove_punct=TRUE, remove=(stopwords("german"))), k=10)
+terms(programs_2002_lda)
+
+# topics from 2017
+programs_2017_lda <- textmodel_lda(dfm(programs[programs$"year" == 2017], remove_punct=TRUE, remove=(stopwords("german"))), k=10)
+terms(programs_2017_lda)
+
 #######################
 # Keywords in Context #
 #######################
