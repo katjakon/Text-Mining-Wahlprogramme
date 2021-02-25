@@ -617,7 +617,16 @@ textplot_wordcloud(eu%&gt;% corpus() %&gt;% dfm(), max_words = 100)</code></pre>
 <h2>TF-IDF</h2>
 <p>Mithilfe von Term-Frequency und Inverted-Document-Frequency lassen sich Terme bestimmen, die für ein Dokument charakteristisch sind. Der Ausgabewert von <code>dfm_tfidf</code> ist eine Document-Feature-Matrix, sodass mit den Funktionen <code>dfm_subset</code> und <code>topfeatures</code> Terme ausgeben werden können, die besonders charakteristisch für eine bestimmte Gruppe sind. Im Folgenden sind auf diese Art kennzeichnende Begriffe für die einzelnen Parteien bestimmt worden:</p>
 <pre class="r"><code>tfidf &lt;- dfm_tfidf(program_toks %&gt;% dfm(groups = &quot;party&quot;))
-# Distinctive terms for each party
+topfeatures(tfidf[1,])</code></pre>
+<pre><code>##                         afd            gender-ideologie sozialversicherungsabkommen 
+##                   40.109470                    5.915686                    5.070588 
+##        parteienfinanzierung           volkssouveränität              ämterpatronage 
+##                    3.808476                    3.380392                    3.380392 
+##              parlamentarier            gender-forschung           deutsch-türkische 
+##                    3.380392                    3.380392                    3.380392 
+##                kultursorten 
+##                    3.380392</code></pre>
+<pre class="r"><code># Distinctive terms for each party
 afd &lt;- dfm_subset(tfidf, tfidf$&quot;party&quot;==&quot;AfD&quot;)
 topfeatures(afd, n=10)</code></pre>
 <pre><code>##                         afd            gender-ideologie sozialversicherungsabkommen 
@@ -776,402 +785,65 @@ terms(program_lda_k10)</code></pre>
 ##  [8,] &quot;statt&quot;         &quot;altersvorsorge&quot;  &quot;deshalb&quot;     &quot;drei&quot;            &quot;endlich&quot;         
 ##  [9,] &quot;sozial&quot;        &quot;weltbeste&quot;       &quot;setzen&quot;      &quot;oft&quot;             &quot;wählt&quot;           
 ## [10,] &quot;fordert&quot;       &quot;digitalen&quot;       &quot;stärken&quot;     &quot;viele&quot;           &quot;jobs&quot;</code></pre>
-<p>Für die einzelnen Parteien wie folgt (k ist hier höher, da sich sonst keine abzugrenzenden Topics zeigen):</p>
-<pre class="r"><code># topics from DIELINKE programs
-dielinke_lda_k20 &lt;- textmodel_lda(dfm(programs[programs$party == &quot;DIELINKE&quot;], remove_punct=TRUE, remove=(stopwords(&quot;german&quot;))), k=20)
-terms(dielinke_lda_k20)</code></pre>
-<pre><code>##       topic1            topic2          topic3                    topic4         topic5           
-##  [1,] &quot;demokratisieren&quot; &quot;organisierte&quot;  &quot;vgl&quot;                     &quot;schiene&quot;      &quot;jährliche&quot;      
-##  [2,] &quot;leiden&quot;          &quot;2006&quot;          &quot;geflüchtete&quot;             &quot;unterhalb&quot;    &quot;beispielsweise&quot; 
-##  [3,] &quot;sichergestellt&quot;  &quot;antrag&quot;        &quot;dauerstress&quot;             &quot;mindestrente&quot; &quot;schüler&quot;        
-##  [4,] &quot;krankenhaus&quot;     &quot;unterwerfen&quot;   &quot;aktuellen&quot;               &quot;medizinische&quot; &quot;gesamte&quot;        
-##  [5,] &quot;einkommen&quot;       &quot;hätten&quot;        &quot;integration&quot;             &quot;finanzierbar&quot; &quot;eingriffe&quot;      
-##  [6,] &quot;sogar&quot;           &quot;drittel&quot;       &quot;ttip&quot;                    &quot;operationen&quot;  &quot;tourismus&quot;      
-##  [7,] &quot;weitgehend&quot;      &quot;abzusichern&quot;   &quot;wäre&quot;                    &quot;erzeugung&quot;    &quot;gemeinwesens&quot;   
-##  [8,] &quot;sehen&quot;           &quot;6&quot;             &quot;niedriglohn&quot;             &quot;kindes&quot;       &quot;eltern&quot;         
-##  [9,] &quot;kirchlichen&quot;     &quot;kapitals&quot;      &quot;normalarbeitsverhältnis&quot; &quot;vordergrund&quot;  &quot;leistungsfähige&quot;
-## [10,] &quot;kostenfreie&quot;     &quot;weiterbildung&quot; &quot;pflegekräfte&quot;            &quot;konzepte&quot;     &quot;ausschluss&quot;     
-##       topic6            topic7         topic8           topic9               topic10             
-##  [1,] &quot;vi&quot;              &quot;verhältnisse&quot; &quot;einführen&quot;      &quot;ausschließlich&quot;     &quot;weit&quot;              
-##  [2,] &quot;öffentliches&quot;    &quot;erster&quot;       &quot;fordert&quot;        &quot;sozialleistungen&quot;   &quot;regelung&quot;          
-##  [3,] &quot;unerlässlich&quot;    &quot;hilfen&quot;       &quot;globale&quot;        &quot;stunde&quot;             &quot;pflege&quot;            
-##  [4,] &quot;wissenschaft&quot;    &quot;jahrhundert&quot;  &quot;uno&quot;            &quot;beseitigt&quot;          &quot;gestrichen&quot;        
-##  [5,] &quot;steueroasen&quot;     &quot;projekten&quot;    &quot;sichern&quot;        &quot;leistung&quot;           &quot;streikrecht&quot;       
-##  [6,] &quot;ausstieg&quot;        &quot;spenden&quot;      &quot;gleichstellung&quot; &quot;500&quot;                &quot;rückkehrrecht&quot;     
-##  [7,] &quot;möglichkeit&quot;     &quot;lebenden&quot;     &quot;verankern&quot;      &quot;bankensektor&quot;       &quot;pläne&quot;             
-##  [8,] &quot;privater&quot;        &quot;vertretern&quot;   &quot;gleiche&quot;        &quot;einseitig&quot;          &quot;superreichen&quot;      
-##  [9,] &quot;diskriminierung&quot; &quot;5&quot;            &quot;ausbauen&quot;       &quot;gesellschaftlicher&quot; &quot;strikt&quot;            
-## [10,] &quot;bestraft&quot;        &quot;trifft&quot;       &quot;gleichheit&quot;     &quot;zugunsten&quot;          &quot;sozial-ökologische&quot;
-##       topic11                topic12       topic13              topic14            topic15         
-##  [1,] &quot;steuerhinterziehung&quot;  &quot;müssen&quot;      &quot;begrenzt&quot;           &quot;vielerorts&quot;       &quot;sichere&quot;       
-##  [2,] &quot;genossenschaftliche&quot;  &quot;menschen&quot;    &quot;egal&quot;               &quot;betroffen&quot;        &quot;träger&quot;        
-##  [3,] &quot;verdrängung&quot;          &quot;linke&quot;       &quot;produziert&quot;         &quot;feierabend&quot;       &quot;verringert&quot;    
-##  [4,] &quot;zusätzliche&quot;          &quot;dass&quot;        &quot;häufig&quot;             &quot;eigener&quot;          &quot;bezahlbar&quot;     
-##  [5,] &quot;beschleunigt&quot;         &quot;mehr&quot;        &quot;produzieren&quot;        &quot;ausbildungsplatz&quot; &quot;barrieren&quot;     
-##  [6,] &quot;abbauen&quot;              &quot;soziale&quot;     &quot;beendigung&quot;         &quot;profite&quot;          &quot;maximal&quot;       
-##  [7,] &quot;ausbildungsvergütung&quot; &quot;arbeit&quot;      &quot;vermögen&quot;           &quot;bundesregierung&quot;  &quot;modernisierung&quot;
-##  [8,] &quot;währungsunion&quot;        &quot;sowie&quot;       &quot;einkommensschwache&quot; &quot;gesundheitliche&quot;  &quot;geregelt&quot;      
-##  [9,] &quot;technischen&quot;          &quot;öffentliche&quot; &quot;16&quot;                 &quot;grund-&quot;           &quot;ökonomischen&quot;  
-## [10,] &quot;weiterentwickeln&quot;     &quot;unternehmen&quot; &quot;neuausrichtung&quot;     &quot;systeme&quot;          &quot;register&quot;      
-##       topic16        topic17            topic18      topic19         topic20       
-##  [1,] &quot;verlässlich&quot;  &quot;durchsetzen&quot;      &quot;angriffe&quot;   &quot;zurückdrängen&quot; &quot;chance&quot;      
-##  [2,] &quot;finanz-&quot;      &quot;arbeitsmarkt&quot;     &quot;autobahnen&quot; &quot;belastet&quot;      &quot;individuelle&quot;
-##  [3,] &quot;einzuführen&quot;  &quot;lebensjahr&quot;       &quot;fokus&quot;      &quot;wettbewerb&quot;    &quot;kommenden&quot;   
-##  [4,] &quot;einstieg&quot;     &quot;wirtschaftskrise&quot; &quot;aufgelöst&quot;  &quot;orte&quot;          &quot;erheblich&quot;   
-##  [5,] &quot;monat&quot;        &quot;einbeziehen&quot;      &quot;geschehen&quot;  &quot;schnell&quot;       &quot;problemen&quot;   
-##  [6,] &quot;danach&quot;       &quot;ausschließen&quot;     &quot;protest&quot;    &quot;einzelnen&quot;     &quot;gestalten&quot;   
-##  [7,] &quot;ausgehandelt&quot; &quot;konsequent&quot;       &quot;lehr-&quot;      &quot;chronisch&quot;     &quot;sektor&quot;      
-##  [8,] &quot;september&quot;    &quot;sozialer&quot;         &quot;frühe&quot;      &quot;verarbeitung&quot;  &quot;drastisch&quot;   
-##  [9,] &quot;geben&quot;        &quot;medienordnung&quot;    &quot;einzahlen&quot;  &quot;unteilbar&quot;     &quot;mangel&quot;      
-## [10,] &quot;möglich&quot;      &quot;hunger&quot;           &quot;linker&quot;     &quot;arbeitsrecht&quot;  &quot;entwickeln&quot;</code></pre>
-<pre class="r"><code># topics from PDS programs
-pds_lda_k20 &lt;- textmodel_lda(dfm(programs[programs$party == &quot;PDS&quot;], remove_punct=TRUE, remove=(stopwords(&quot;german&quot;))), k=20)
-terms(pds_lda_k20)</code></pre>
-<pre><code>##       topic1            topic2            topic3             topic4                 
-##  [1,] &quot;west&quot;            &quot;hervor&quot;          &quot;fordern&quot;          &quot;ökonomische&quot;          
-##  [2,] &quot;erfahrungen&quot;     &quot;deutschland&quot;     &quot;lehnen&quot;           &quot;umwelt-&quot;              
-##  [3,] &quot;streben&quot;         &quot;sozialismus&quot;     &quot;lernen&quot;           &quot;wohnungen&quot;            
-##  [4,] &quot;länger&quot;          &quot;überlassen&quot;      &quot;demokratisierung&quot; &quot;zählen&quot;               
-##  [5,] &quot;arbeitslose&quot;     &quot;formen&quot;          &quot;steht&quot;            &quot;wachsen&quot;              
-##  [6,] &quot;steigen&quot;         &quot;strafrechtliche&quot; &quot;senken&quot;           &quot;angesichts&quot;           
-##  [7,] &quot;voraussetzungen&quot; &quot;wegen&quot;           &quot;gewährleistet&quot;    &quot;zukunftsinvestitionen&quot;
-##  [8,] &quot;gemeinnützigen&quot;  &quot;arbeit&quot;          &quot;system&quot;           &quot;zwei&quot;                 
-##  [9,] &quot;ersten&quot;          &quot;einerseits&quot;      &quot;abgebaut&quot;         &quot;erleichtert&quot;          
-## [10,] &quot;patienten&quot;       &quot;fragen&quot;          &quot;ausweitung&quot;       &quot;jahr&quot;                 
-##       topic5                  topic6          topic7            topic8          topic9          
-##  [1,] &quot;staaten&quot;               &quot;macht&quot;         &quot;erhöht&quot;          &quot;öffentlich&quot;    &quot;kooperation&quot;   
-##  [2,] &quot;schaffung&quot;             &quot;dringend&quot;      &quot;ja&quot;              &quot;zurück&quot;        &quot;wer&quot;           
-##  [3,] &quot;kooperation&quot;           &quot;überwindung&quot;   &quot;euro&quot;            &quot;einrichtung&quot;   &quot;gleiche&quot;       
-##  [4,] &quot;eigenständige&quot;         &quot;ländern&quot;       &quot;schutz&quot;          &quot;einfluss&quot;      &quot;identität&quot;     
-##  [5,] &quot;ausbauen&quot;              &quot;kommunen&quot;      &quot;ungerechtigkeit&quot; &quot;rechte&quot;        &quot;zukunft&quot;       
-##  [6,] &quot;schon&quot;                 &quot;wasser&quot;        &quot;nachfrage&quot;       &quot;begreift&quot;      &quot;spaltung&quot;      
-##  [7,] &quot;ausgleich&quot;             &quot;geben&quot;         &quot;kommunale&quot;       &quot;steuern&quot;       &quot;erfordernisse&quot; 
-##  [8,] &quot;märkte&quot;                &quot;unterstützung&quot; &quot;aufgaben&quot;        &quot;finden&quot;        &quot;qualifikation&quot; 
-##  [9,] &quot;wirtschaftskreisläufe&quot; &quot;eu&quot;            &quot;40&quot;              &quot;bundes&quot;        &quot;landwirtschaft&quot;
-## [10,] &quot;ökologischer&quot;          &quot;forschung&quot;     &quot;nutzung&quot;         &quot;international&quot; &quot;voraussetzung&quot; 
-##       topic10        topic11         topic12          topic13            topic14          
-##  [1,] &quot;dass&quot;         &quot;gewalt&quot;        &quot;bleibt&quot;         &quot;wirtschaftlichen&quot; &quot;linkspartei.pds&quot;
-##  [2,] &quot;menschen&quot;     &quot;hinaus&quot;        &quot;durchsetzung&quot;   &quot;1&quot;                &quot;2&quot;              
-##  [3,] &quot;mehr&quot;         &quot;wertschöpfung&quot; &quot;tritt&quot;          &quot;csu&quot;              &quot;euro&quot;           
-##  [4,] &quot;pds&quot;          &quot;herkunft&quot;      &quot;etwa&quot;           &quot;möglich&quot;          &quot;3&quot;              
-##  [5,] &quot;müssen&quot;       &quot;minderheiten&quot;  &quot;hierzu&quot;         &quot;verwirklichen&quot;    &quot;4&quot;              
-##  [6,] &quot;soziale&quot;      &quot;verteidigen&quot;   &quot;verfassung&quot;     &quot;zukunft&quot;          &quot;spd&quot;            
-##  [7,] &quot;politik&quot;      &quot;terrorismus&quot;   &quot;politischer&quot;    &quot;menschenrechte&quot;   &quot;nehmen&quot;         
-##  [8,] &quot;deutschland&quot;  &quot;streiten&quot;      &quot;antisemitismus&quot; &quot;gewährleisten&quot;    &quot;linkspartei&quot;    
-##  [9,] &quot;frauen&quot;       &quot;deren&quot;         &quot;staat&quot;          &quot;bürgerinnen&quot;      &quot;arbeitszeiten&quot;  
-## [10,] &quot;gesellschaft&quot; &quot;regionale&quot;     &quot;weiteren&quot;       &quot;lage&quot;             &quot;gewährleisten&quot;  
-##       topic15            topic16          topic17           topic18            
-##  [1,] &quot;demokratisch&quot;     &quot;gleichzeitig&quot;   &quot;teilhabe&quot;        &quot;haushalte&quot;        
-##  [2,] &quot;parlament&quot;        &quot;deutschlands&quot;   &quot;vereinten&quot;       &quot;solidarischen&quot;    
-##  [3,] &quot;gesetzlichen&quot;     &quot;organisationen&quot; &quot;anerkennung&quot;     &quot;grundsatz&quot;        
-##  [4,] &quot;sicherheit&quot;       &quot;kosten&quot;         &quot;wachsende&quot;       &quot;dauerhafte&quot;       
-##  [5,] &quot;internationalen&quot;  &quot;bürger&quot;         &quot;grüne&quot;           &quot;rente&quot;            
-##  [6,] &quot;selbstbestimmtes&quot; &quot;einrichtungen&quot;  &quot;erfahrungen&quot;     &quot;neben&quot;            
-##  [7,] &quot;internationaler&quot;  &quot;orientiert&quot;     &quot;ostdeutsche&quot;     &quot;jugendlichen&quot;     
-##  [8,] &quot;ausgebaut&quot;        &quot;staatliche&quot;     &quot;verkehrswende&quot;   &quot;direkte&quot;          
-##  [9,] &quot;menschenrechte&quot;   &quot;versorgung&quot;     &quot;politischen&quot;     &quot;vollbeschäftigung&quot;
-## [10,] &quot;moderner&quot;         &quot;gebracht&quot;       &quot;kinderbetreuung&quot; &quot;kleineren&quot;        
-##       topic19                topic20                       
-##  [1,] &quot;markt&quot;                &quot;mindestens&quot;                  
-##  [2,] &quot;teil&quot;                 &quot;millionen&quot;                   
-##  [3,] &quot;abbau&quot;                &quot;ausgebaut&quot;                   
-##  [4,] &quot;bringt&quot;               &quot;wer&quot;                         
-##  [5,] &quot;parlamentarische&quot;     &quot;iv&quot;                          
-##  [6,] &quot;fordert&quot;              &quot;zukunftsinvestitionsprogramm&quot;
-##  [7,] &quot;ost&quot;                  &quot;fdp&quot;                         
-##  [8,] &quot;bedeutet&quot;             &quot;alternative&quot;                 
-##  [9,] &quot;sozialversicherungen&quot; &quot;geben&quot;                       
-## [10,] &quot;gruppen&quot;              &quot;arbeitsplätze&quot;</code></pre>
+<p>Für die einzelnen Parteien wie folgt (hier nur exemplarisch, da sich keine all zu aussagekräftigen Ergebnisse gezeigt haben):</p>
 <pre class="r"><code># topics from B90/Die Grüne programs
 gruene_lda_k20 &lt;- textmodel_lda(dfm(programs[programs$party == &quot;B90dieGruene&quot;], remove_punct=TRUE, remove=(stopwords(&quot;german&quot;))), k=20)
 terms(gruene_lda_k20)</code></pre>
-<pre><code>##       topic1                topic2             topic3                   topic4              
-##  [1,] &quot;gegenteil&quot;           &quot;gentechnikfreie&quot;  &quot;bedrohte&quot;               &quot;cdu&quot;               
-##  [2,] &quot;km&quot;                  &quot;vergessen&quot;        &quot;2014&quot;                   &quot;ausgrenzung&quot;       
-##  [3,] &quot;potential&quot;           &quot;fort&quot;             &quot;versucht&quot;               &quot;csu&quot;               
-##  [4,] &quot;ökologie&quot;            &quot;vergütung&quot;        &quot;umgehend&quot;               &quot;ökologie&quot;          
-##  [5,] &quot;10&quot;                  &quot;reich&quot;            &quot;neue&quot;                   &quot;fdp&quot;               
-##  [6,] &quot;hektar&quot;              &quot;per&quot;              &quot;jugendarbeitslosigkeit&quot; &quot;tourismus&quot;         
-##  [7,] &quot;teuren&quot;              &quot;erlangen&quot;         &quot;bankenunion&quot;            &quot;potenziale&quot;        
-##  [8,] &quot;chemische&quot;           &quot;industriestaaten&quot; &quot;intensive&quot;              &quot;unteren&quot;           
-##  [9,] &quot;kultureinrichtungen&quot; &quot;bundesrepublik&quot;   &quot;einklang&quot;               &quot;bürgergesellschaft&quot;
-## [10,] &quot;wirksamkeit&quot;         &quot;organisiert&quot;      &quot;spätestens&quot;             &quot;sozialpolitik&quot;     
-##       topic5          topic6                 topic7               topic8                
-##  [1,] &quot;asylverfahren&quot; &quot;informationsfreiheit&quot; &quot;satz&quot;               &quot;gesellschaftsvertrag&quot;
-##  [2,] &quot;hetze&quot;         &quot;gerechtigkeitsfrage&quot;  &quot;mittelständische&quot;   &quot;new&quot;                 
-##  [3,] &quot;bekenntnis&quot;    &quot;auslandseinsätze&quot;     &quot;vorschläge&quot;         &quot;deal&quot;                
-##  [4,] &quot;öpnv&quot;          &quot;2013&quot;                 &quot;mitte&quot;              &quot;green&quot;               
-##  [5,] &quot;personell&quot;     &quot;verpflichtende&quot;       &quot;verbessert&quot;         &quot;krise&quot;               
-##  [6,] &quot;tendenzen&quot;     &quot;nachhaltiges&quot;         &quot;entwicklungsländer&quot; &quot;koalition&quot;           
-##  [7,] &quot;zwei&quot;          &quot;fließen&quot;              &quot;gleichzeitig&quot;       &quot;blockaden&quot;           
-##  [8,] &quot;rechtsstaat&quot;   &quot;hintergrund&quot;          &quot;durchbruch&quot;         &quot;umfassend&quot;           
-##  [9,] &quot;fühlen&quot;        &quot;akteuren&quot;             &quot;absage&quot;             &quot;hochschule&quot;          
-## [10,] &quot;krisengebiete&quot; &quot;data&quot;                 &quot;mangel&quot;             &quot;bedarf&quot;              
-##       topic9                 topic10            topic11        topic12         topic13           
-##  [1,] &quot;reformieren&quot;          &quot;mehrheiten&quot;       &quot;einmischen&quot;   &quot;begrenzen&quot;     &quot;entstanden&quot;      
-##  [2,] &quot;sozialversicherungen&quot; &quot;herkunftsländern&quot; &quot;mrd&quot;          &quot;not&quot;           &quot;ökonomisch&quot;      
-##  [3,] &quot;bildung&quot;              &quot;ideologien&quot;       &quot;energiewende&quot; &quot;potenzial&quot;     &quot;bilanz&quot;          
-##  [4,] &quot;wehrpflicht&quot;          &quot;erheben&quot;          &quot;6&quot;            &quot;enthalten&quot;     &quot;ergriffen&quot;       
-##  [5,] &quot;vergleich&quot;            &quot;30&quot;               &quot;urheberinnen&quot; &quot;reagiert&quot;      &quot;heute&quot;           
-##  [6,] &quot;lange&quot;                &quot;großer&quot;           &quot;5&quot;            &quot;rechnet&quot;       &quot;arbeits-&quot;        
-##  [7,] &quot;schulabschluss&quot;       &quot;draußen&quot;          &quot;wandel&quot;       &quot;sektoren&quot;      &quot;gewerbesteuer&quot;   
-##  [8,] &quot;verteidigt&quot;           &quot;paare&quot;            &quot;teilhaben&quot;    &quot;rasch&quot;         &quot;verantwortlichen&quot;
-##  [9,] &quot;bahn&quot;                 &quot;umfang&quot;           &quot;altersarmut&quot;  &quot;einrichtungen&quot; &quot;steuersystem&quot;    
-## [10,] &quot;grundsicherung&quot;       &quot;beginnt&quot;          &quot;mio&quot;          &quot;migration&quot;     &quot;jung&quot;            
-##       topic14        topic15             topic16       topic17        topic18            
-##  [1,] &quot;leitplanken&quot;  &quot;bündnis&quot;           &quot;dass&quot;        &quot;glauben&quot;      &quot;ausgestalten&quot;     
-##  [2,] &quot;bestrafung&quot;   &quot;ostdeutschland&quot;    &quot;menschen&quot;    &quot;europäischen&quot; &quot;sagt&quot;             
-##  [3,] &quot;ausdrücklich&quot; &quot;90&quot;                &quot;mehr&quot;        &quot;lautet&quot;       &quot;vertreibung&quot;      
-##  [4,] &quot;leitlinien&quot;   &quot;globalisierung&quot;    &quot;müssen&quot;      &quot;effektive&quot;    &quot;aufwerten&quot;        
-##  [5,] &quot;festlegen&quot;    &quot;lohnnebenkosten&quot;   &quot;dafür&quot;       &quot;vorhaben&quot;     &quot;gesellschaften&quot;   
-##  [6,] &quot;beheben&quot;      &quot;nächsten&quot;          &quot;deshalb&quot;     &quot;planeten&quot;     &quot;negativen&quot;        
-##  [7,] &quot;einsetzen&quot;    &quot;legislaturperiode&quot; &quot;setzen&quot;      &quot;weltweite&quot;    &quot;begleiten&quot;        
-##  [8,] &quot;zuständig&quot;    &quot;partei&quot;            &quot;neue&quot;        &quot;flugverkehr&quot;  &quot;strukturschwachen&quot;
-##  [9,] &quot;teilzunehmen&quot; &quot;finanzreform&quot;      &quot;deutschland&quot; &quot;einzudämmen&quot;  &quot;beteiligung&quot;      
-## [10,] &quot;informieren&quot;  &quot;internationale&quot;    &quot;grüne&quot;       &quot;bäuerliche&quot;   &quot;alte&quot;             
-##       topic19               topic20          
-##  [1,] &quot;energetischen&quot;       &quot;innen&quot;          
-##  [2,] &quot;erde&quot;                &quot;digitalisierung&quot;
-##  [3,] &quot;kapitaleinkommen&quot;    &quot;bürger&quot;         
-##  [4,] &quot;laufen&quot;              &quot;beispiel&quot;       
-##  [5,] &quot;wirtschaftsweise&quot;    &quot;gut&quot;            
-##  [6,] &quot;interessenausgleich&quot; &quot;geflüchtete&quot;    
-##  [7,] &quot;mitspracherechte&quot;    &quot;drei&quot;           
-##  [8,] &quot;gegeben&quot;             &quot;vereinten&quot;      
-##  [9,] &quot;energiepreise&quot;       &quot;verbraucher&quot;    
-## [10,] &quot;besonderer&quot;          &quot;klimakrise&quot;</code></pre>
-<pre class="r"><code># topics from SPD programs
-spd_lda_k20 &lt;- textmodel_lda(dfm(programs[programs$party == &quot;SPD&quot;], remove_punct=TRUE, remove=(stopwords(&quot;german&quot;))), k=20)
-terms(spd_lda_k20)</code></pre>
-<pre><code>##       topic1                topic2          topic3             topic4            
-##  [1,] &quot;digitalisierung&quot;     &quot;regierungen&quot;   &quot;wasserversorgung&quot; &quot;digitale&quot;        
-##  [2,] &quot;verwaltung&quot;          &quot;global&quot;        &quot;erleben&quot;          &quot;mittlere&quot;        
-##  [3,] &quot;gemeinsam&quot;           &quot;spekulation&quot;   &quot;zentral&quot;          &quot;abbauen&quot;         
-##  [4,] &quot;kinderzuschlag&quot;      &quot;maximal&quot;       &quot;herstellen&quot;       &quot;aus-&quot;            
-##  [5,] &quot;freier&quot;              &quot;umweltpolitik&quot; &quot;verringert&quot;       &quot;nutzer&quot;          
-##  [6,] &quot;familienarbeitszeit&quot; &quot;angeboten&quot;     &quot;etc&quot;              &quot;nutzerinnen&quot;     
-##  [7,] &quot;europäisches&quot;        &quot;gemeinden&quot;     &quot;medizinische&quot;     &quot;selbstständige&quot;  
-##  [8,] &quot;heißt&quot;               &quot;verletzt&quot;      &quot;erbe&quot;             &quot;schulen&quot;         
-##  [9,] &quot;effektiv&quot;            &quot;augenmaß&quot;      &quot;hinblick&quot;         &quot;unterschiedliche&quot;
-## [10,] &quot;prüfen&quot;              &quot;verwirklichen&quot; &quot;vergleichbare&quot;    &quot;familiengeld&quot;    
-##       topic5                topic6          topic7               topic8                
-##  [1,] &quot;modernes&quot;            &quot;iii&quot;           &quot;förderprogramme&quot;    &quot;wohl&quot;                
-##  [2,] &quot;entwicklungen&quot;       &quot;bürgerkonvent&quot; &quot;voran&quot;              &quot;kulturförderung&quot;     
-##  [3,] &quot;nato&quot;                &quot;märz&quot;          &quot;lebensverhältnisse&quot; &quot;solidaritätszuschlag&quot;
-##  [4,] &quot;maße&quot;                &quot;cdu&quot;           &quot;solidarisches&quot;      &quot;eigenen&quot;             
-##  [5,] &quot;bezahlbarer&quot;         &quot;regieren&quot;      &quot;öffentliche&quot;        &quot;tarifvertraglich&quot;    
-##  [6,] &quot;konsequenzen&quot;        &quot;aufwachsen&quot;    &quot;mitarbeiter&quot;        &quot;vernetzung&quot;          
-##  [7,] &quot;lebenschancen&quot;       &quot;qualität&quot;      &quot;ausdehnen&quot;          &quot;menschenwürdige&quot;     
-##  [8,] &quot;entwicklungsländern&quot; &quot;städten&quot;       &quot;zählt&quot;              &quot;kinderbonus&quot;         
-##  [9,] &quot;stärkere&quot;            &quot;steuerpolitik&quot; &quot;abgestimmt&quot;         &quot;kurzfristig&quot;         
-## [10,] &quot;entscheidende&quot;       &quot;finanzieren&quot;   &quot;struktur&quot;           &quot;austausch&quot;           
-##       topic9          topic10       topic11               topic12          topic13       
-##  [1,] &quot;innen-projekt&quot; &quot;gar&quot;         &quot;bündnis&quot;             &quot;\200&quot;              &quot;ländlicher&quot;  
-##  [2,] &quot;besonderer&quot;    &quot;daten&quot;       &quot;bundesanstalt&quot;       &quot;1998&quot;           &quot;selbsthilfe&quot; 
-##  [3,] &quot;sogenannte&quot;    &quot;usa&quot;         &quot;steigen&quot;             &quot;mrd&quot;            &quot;ehe&quot;         
-##  [4,] &quot;gleichgewicht&quot; &quot;egal&quot;        &quot;weise&quot;               &quot;unverzichtbar&quot;  &quot;erfordern&quot;   
-##  [5,] &quot;gerhard&quot;       &quot;digitaler&quot;   &quot;wirtschaftswachstum&quot; &quot;2005&quot;           &quot;beide&quot;       
-##  [6,] &quot;abgebaut&quot;      &quot;augenhöhe&quot;   &quot;modernisiert&quot;        &quot;ostdeutschen&quot;   &quot;gesetzlicher&quot;
-##  [7,] &quot;prägen&quot;        &quot;bereit&quot;      &quot;reform&quot;              &quot;ostdeutschland&quot; &quot;angriff&quot;     
-##  [8,] &quot;hängt&quot;         &quot;künftig&quot;     &quot;geschlechter&quot;        &quot;älteren&quot;        &quot;höher&quot;       
-##  [9,] &quot;anstrengungen&quot; &quot;öffentliche&quot; &quot;verbraucherschutz&quot;   &quot;sozialhilfe&quot;    &quot;befristung&quot;  
-## [10,] &quot;kern&quot;          &quot;breiten&quot;     &quot;bürgerrecht&quot;         &quot;erneuerung&quot;     &quot;finanzen&quot;    
-##       topic14             topic15         topic16        topic17               topic18          
-##  [1,] &quot;rechtsextremismus&quot; &quot;gerhard&quot;       &quot;dass&quot;         &quot;gründung&quot;            &quot;handel&quot;         
-##  [2,] &quot;aufstieg&quot;          &quot;schröder&quot;      &quot;mehr&quot;         &quot;stabile&quot;             &quot;daten&quot;          
-##  [3,] &quot;bildet&quot;            &quot;cdu&quot;           &quot;menschen&quot;     &quot;vertrag&quot;             &quot;gebäude&quot;        
-##  [4,] &quot;gewachsen&quot;         &quot;2010&quot;          &quot;deutschland&quot;  &quot;stiftungen&quot;          &quot;dafür&quot;          
-##  [5,] &quot;binnennachfrage&quot;   &quot;fdp&quot;           &quot;müssen&quot;       &quot;naturschutz&quot;         &quot;leisten&quot;        
-##  [6,] &quot;wirtschaftlicher&quot;  &quot;csu&quot;           &quot;deshalb&quot;      &quot;waffen&quot;              &quot;außen&quot;          
-##  [7,] &quot;materielle&quot;        &quot;aufgabe&quot;       &quot;arbeit&quot;       &quot;pflegebedürftigkeit&quot; &quot;ausstattung&quot;    
-##  [8,] &quot;geringer&quot;          &quot;begonnen&quot;      &quot;dafür&quot;        &quot;konsumenten&quot;         &quot;ausländischer&quot;  
-##  [9,] &quot;gestiegenen&quot;       &quot;ost&quot;           &quot;stärken&quot;      &quot;strom&quot;               &quot;fachhochschulen&quot;
-## [10,] &quot;fortschritts&quot;      &quot;bundeskanzler&quot; &quot;gesellschaft&quot; &quot;lang&quot;                &quot;wertvolle&quot;      
-##       topic19        topic20              
-##  [1,] &quot;erneuerbarer&quot; &quot;krise&quot;              
-##  [2,] &quot;ansatz&quot;       &quot;wählen&quot;             
-##  [3,] &quot;persönliche&quot;  &quot;verpflichtet&quot;       
-##  [4,] &quot;wohlstands&quot;   &quot;menschenrecht&quot;      
-##  [5,] &quot;armut&quot;        &quot;industriepolitik&quot;   
-##  [6,] &quot;angemessenen&quot; &quot;steuerhinterziehung&quot;
-##  [7,] &quot;heraus&quot;       &quot;begrenzt&quot;           
-##  [8,] &quot;zuletzt&quot;      &quot;ambulante&quot;          
-##  [9,] &quot;bewältigung&quot;  &quot;organisierte&quot;       
-## [10,] &quot;bedürfnissen&quot; &quot;2010&quot;</code></pre>
-<pre class="r"><code># topics from CDU programs
-cdu_lda_k20 &lt;- textmodel_lda(dfm(programs[programs$party == &quot;CDU&quot;], remove_punct=TRUE, remove=(stopwords(&quot;german&quot;))), k=20)
-terms(cdu_lda_k20)</code></pre>
-<pre><code>##       topic1                    topic2             topic3                topic4        
-##  [1,] &quot;beteiligen&quot;              &quot;kompetenz&quot;        &quot;wandel&quot;              &quot;bewegen&quot;     
-##  [2,] &quot;lohn&quot;                    &quot;osten&quot;            &quot;partnerschaft&quot;       &quot;information&quot; 
-##  [3,] &quot;jugend&quot;                  &quot;bürger&quot;           &quot;effizienter&quot;         &quot;vorhaben&quot;    
-##  [4,] &quot;gründer&quot;                 &quot;tier-&quot;            &quot;jüngeren&quot;            &quot;beste&quot;       
-##  [5,] &quot;anerkennen&quot;              &quot;menschliches&quot;     &quot;energie&quot;             &quot;regeln&quot;      
-##  [6,] &quot;fortsetzen&quot;              &quot;transatlantische&quot; &quot;entwicklungspolitik&quot; &quot;kleinen&quot;     
-##  [7,] &quot;fördert&quot;                 &quot;markt&quot;            &quot;transparenten&quot;       &quot;bestrafen&quot;   
-##  [8,] &quot;wunsch&quot;                  &quot;baut&quot;             &quot;mittelständischen&quot;   &quot;kulturelles&quot; 
-##  [9,] &quot;verantwortungsbewussten&quot; &quot;rechtlichen&quot;      &quot;umweltpolitik&quot;       &quot;exportnation&quot;
-## [10,] &quot;landwirten&quot;              &quot;optimale&quot;         &quot;gewährleistet&quot;       &quot;vernetzen&quot;   
-##       topic5            topic6          topic7          topic8          topic9                    
-##  [1,] &quot;seit&quot;            &quot;steigenden&quot;    &quot;umwelt&quot;        &quot;euro&quot;          &quot;digitales&quot;               
-##  [2,] &quot;zahl&quot;            &quot;vereinbaren&quot;   &quot;personal&quot;      &quot;schaffen&quot;      &quot;30&quot;                      
-##  [3,] &quot;digitalisierung&quot; &quot;vorbild&quot;       &quot;überall&quot;       &quot;rund&quot;          &quot;elektromobilität&quot;        
-##  [4,] &quot;erfolg&quot;          &quot;inklusive&quot;     &quot;infrastruktur&quot; &quot;deutschland&quot;   &quot;später&quot;                  
-##  [5,] &quot;neu&quot;             &quot;prägung&quot;       &quot;bereiche&quot;      &quot;rot-grün&quot;      &quot;partei&quot;                  
-##  [6,] &quot;afrika&quot;          &quot;menschenbild&quot;  &quot;garant&quot;        &quot;zurück&quot;        &quot;massenvernichtungswaffen&quot;
-##  [7,] &quot;erarbeiten&quot;      &quot;vergleich&quot;     &quot;vergangenen&quot;   &quot;wettbewerb&quot;    &quot;verbände&quot;                
-##  [8,] &quot;jahren&quot;          &quot;regulierungen&quot; &quot;bundesländern&quot; &quot;beschäftigung&quot; &quot;erneuerbare&quot;             
-##  [9,] &quot;digitalen&quot;       &quot;größeren&quot;      &quot;gemacht&quot;       &quot;bauen&quot;         &quot;hervorragend&quot;            
-## [10,] &quot;wahlperiode&quot;     &quot;pakt&quot;          &quot;erwerb&quot;        &quot;fast&quot;          &quot;generelles&quot;              
-##       topic10         topic11       topic12              topic13          topic14            
-##  [1,] &quot;verständnis&quot;   &quot;deutschland&quot; &quot;\200&quot;                  &quot;pflicht&quot;        &quot;tätigen&quot;          
-##  [2,] &quot;wasser&quot;        &quot;dass&quot;        &quot;statt&quot;              &quot;globalisierten&quot; &quot;zusammenhalts&quot;    
-##  [3,] &quot;zuwanderer&quot;    &quot;menschen&quot;    &quot;zuwanderung&quot;        &quot;konkrete&quot;       &quot;pflegebedürftigen&quot;
-##  [4,] &quot;schwierigen&quot;   &quot;mehr&quot;        &quot;begrenzen&quot;          &quot;führt&quot;          &quot;bewusstsein&quot;      
-##  [5,] &quot;großeltern&quot;    &quot;deshalb&quot;     &quot;eigenverantwortung&quot; &quot;stärkeren&quot;      &quot;mitteln&quot;          
-##  [6,] &quot;schwache&quot;      &quot;unsere&quot;      &quot;grundsätzlich&quot;      &quot;umfeld&quot;         &quot;märkten&quot;          
-##  [7,] &quot;nachwachsende&quot; &quot;dafür&quot;       &quot;beseitigen&quot;         &quot;flexibler&quot;      &quot;religiösen&quot;       
-##  [8,] &quot;bald&quot;          &quot;müssen&quot;      &quot;ostdeutschen&quot;       &quot;zuwendung&quot;      &quot;flächendeckende&quot;  
-##  [9,] &quot;meer&quot;          &quot;cdu&quot;         &quot;länger&quot;             &quot;extremismus&quot;    &quot;friedliches&quot;      
-## [10,] &quot;verbindliche&quot;  &quot;csu&quot;         &quot;rot-grün&quot;           &quot;einbürgerung&quot;   &quot;belastung&quot;        
-##       topic15                  topic16              topic17                  
-##  [1,] &quot;sogenannte&quot;             &quot;arbeitslosigkeit&quot;   &quot;2014&quot;                   
-##  [2,] &quot;suchen&quot;                 &quot;effizienz&quot;          &quot;vermögensteuer&quot;         
-##  [3,] &quot;zuwanderungsgeschichte&quot; &quot;versicherten&quot;       &quot;verfügung&quot;              
-##  [4,] &quot;ermuntern&quot;              &quot;balance&quot;            &quot;gemeinsame&quot;             
-##  [5,] &quot;digitale&quot;               &quot;soweit&quot;             &quot;2020&quot;                   
-##  [6,] &quot;bevölkerungswandel&quot;     &quot;einigung&quot;           &quot;zentral&quot;                
-##  [7,] &quot;unternehmen&quot;            &quot;außenpolitik&quot;       &quot;betreuungseinrichtungen&quot;
-##  [8,] &quot;duale&quot;                  &quot;steuerpolitik&quot;      &quot;zweite&quot;                 
-##  [9,] &quot;strom&quot;                  &quot;gleichberechtigung&quot; &quot;zugunsten&quot;              
-## [10,] &quot;alltag&quot;                 &quot;schlusslicht&quot;       &quot;unternehmerische&quot;       
-##       topic18                topic19                 topic20          
-##  [1,] &quot;verpflichtung&quot;        &quot;ökosteuer&quot;             &quot;krise&quot;          
-##  [2,] &quot;landwirtschaftlichen&quot; &quot;beenden&quot;               &quot;iii&quot;            
-##  [3,] &quot;arbeitslose&quot;          &quot;verbraucherschutz&quot;     &quot;i&quot;              
-##  [4,] &quot;rot-grüne&quot;            &quot;benachteiligung&quot;       &quot;zukunftsprojekt&quot;
-##  [5,] &quot;gewachsenen&quot;          &quot;vernachlässigt&quot;        &quot;ii&quot;             
-##  [6,] &quot;2004&quot;                 &quot;bauern&quot;                &quot;prävention&quot;     
-##  [7,] &quot;arbeitslosen&quot;         &quot;hemmnisse&quot;             &quot;iv&quot;             
-##  [8,] &quot;veränderten&quot;          &quot;demografischen&quot;        &quot;umsetzen&quot;       
-##  [9,] &quot;jährlich&quot;             &quot;genehmigungsverfahren&quot; &quot;6&quot;              
-## [10,] &quot;höheren&quot;              &quot;elemente&quot;              &quot;erfolgreicher&quot;</code></pre>
-<pre class="r"><code>#  topics from AfD programs
-afd_lda_k20 &lt;- textmodel_lda(dfm(programs[programs$party == &quot;AfD&quot;], remove_punct=TRUE, remove=(stopwords(&quot;german&quot;))), k=20)
-terms(afd_lda_k20)</code></pre>
-<pre><code>##       topic1          topic2               topic3        topic4            topic5              
-##  [1,] &quot;krankenhäuser&quot; &quot;schutz&quot;             &quot;afd&quot;         &quot;große&quot;           &quot;familienförderung&quot; 
-##  [2,] &quot;mittel&quot;        &quot;reformieren&quot;        &quot;deutschland&quot; &quot;gehören&quot;         &quot;gerechtigkeit&quot;     
-##  [3,] &quot;freiheit&quot;      &quot;fällen&quot;             &quot;dass&quot;        &quot;sicherstellen&quot;   &quot;verbraucherschutz&quot; 
-##  [4,] &quot;jahren&quot;        &quot;windenergieanlagen&quot; &quot;deutschen&quot;   &quot;welt&quot;            &quot;freien&quot;            
-##  [5,] &quot;politischen&quot;   &quot;verstehen&quot;          &quot;müssen&quot;      &quot;einführung&quot;      &quot;ländlichen&quot;        
-##  [6,] &quot;ländlichen&quot;    &quot;allgemeinen&quot;        &quot;deshalb&quot;     &quot;rechtsordnung&quot;   &quot;maß&quot;               
-##  [7,] &quot;fast&quot;          &quot;jährlich&quot;           &quot;bürger&quot;      &quot;ausländer&quot;       &quot;leisten&quot;           
-##  [8,] &quot;besser&quot;        &quot;lage&quot;               &quot;sollen&quot;      &quot;beenden&quot;         &quot;staatliche&quot;        
-##  [9,] &quot;forderung&quot;     &quot;nationalen&quot;         &quot;deutsche&quot;    &quot;streitkräfte&quot;    &quot;anpassen&quot;          
-## [10,] &quot;mint-fächer&quot;   &quot;arbeit&quot;             &quot;ab&quot;          &quot;familiennachzug&quot; &quot;berufspolitikertum&quot;
-##       topic6                 topic7               topic8               topic9            
-##  [1,] &quot;ebenso&quot;               &quot;ausland&quot;            &quot;sicherheitspolitik&quot; &quot;werte&quot;           
-##  [2,] &quot;kosten&quot;               &quot;jahre&quot;              &quot;rentenversicherung&quot; &quot;bewahren&quot;        
-##  [3,] &quot;forschung&quot;            &quot;staatlichen&quot;        &quot;einführung&quot;         &quot;bereich&quot;         
-##  [4,] &quot;beim&quot;                 &quot;zentralen&quot;          &quot;ort&quot;                &quot;neue&quot;            
-##  [5,] &quot;kontrolle&quot;            &quot;gender-ideologie&quot;   &quot;pflegenotstand&quot;     &quot;neben&quot;           
-##  [6,] &quot;schulen&quot;              &quot;erhalten&quot;           &quot;zunehmende&quot;         &quot;gesundheitskarte&quot;
-##  [7,] &quot;bekenntnisgebundenen&quot; &quot;verbieten&quot;          &quot;bundeswehr&quot;         &quot;halten&quot;          
-##  [8,] &quot;völker&quot;               &quot;gleichberechtigung&quot; &quot;jährliche&quot;          &quot;personelle&quot;      
-##  [9,] &quot;immer&quot;                &quot;technologien&quot;       &quot;steuer-&quot;            &quot;finanzielle&quot;     
-## [10,] &quot;führt&quot;                &quot;muslimen&quot;           &quot;anbindung&quot;          &quot;hierbei&quot;         
-##       topic10            topic11             topic12          topic13                topic14       
-##  [1,] &quot;fordern&quot;          &quot;private&quot;           &quot;sozialsysteme&quot;  &quot;ausländische&quot;         &quot;etwa&quot;        
-##  [2,] &quot;alternative&quot;      &quot;volkssouveränität&quot; &quot;entlasten&quot;      &quot;sicherheitsstrategie&quot; &quot;staaten&quot;     
-##  [3,] &quot;dafür&quot;            &quot;steht&quot;             &quot;heißt&quot;          &quot;abschaffung&quot;          &quot;öffentlichen&quot;
-##  [4,] &quot;wahlprogramm&quot;     &quot;vertreten&quot;         &quot;zugang&quot;         &quot;eurozone&quot;             &quot;leitkultur&quot;  
-##  [5,] &quot;wiedereinführung&quot; &quot;voraussetzungen&quot;   &quot;tragen&quot;         &quot;aufgrund&quot;             &quot;tierschutz&quot;  
-##  [6,] &quot;reform&quot;           &quot;nationalen&quot;        &quot;bürger&quot;         &quot;tritt&quot;                &quot;bundesländer&quot;
-##  [7,] &quot;findet&quot;           &quot;system&quot;            &quot;unsere&quot;         &quot;eingriffe&quot;            &quot;aufgebaut&quot;   
-##  [8,] &quot;verträge&quot;         &quot;gender-ideologie&quot;  &quot;linie&quot;          &quot;weiteren&quot;             &quot;entlastung&quot;  
-##  [9,] &quot;wettbewerb&quot;       &quot;basis&quot;             &quot;freie&quot;          &quot;muslimische&quot;          &quot;arbeitgeber&quot; 
-## [10,] &quot;wichtiger&quot;        &quot;nachhaltig&quot;        &quot;rentenvorsorge&quot; &quot;volk&quot;                 &quot;hohen&quot;       
-##       topic15                    topic16                topic17               topic18            
-##  [1,] &quot;sozialen&quot;                 &quot;politisch&quot;            &quot;sprache&quot;             &quot;deutschland&quot;      
-##  [2,] &quot;umwelt-&quot;                  &quot;staates&quot;              &quot;ezb&quot;                 &quot;bildungsstandards&quot;
-##  [3,] &quot;finanzpolitik&quot;            &quot;soziale&quot;              &quot;ausbauen&quot;            &quot;beschränken&quot;      
-##  [4,] &quot;technologiefeindlichkeit&quot; &quot;überwiegend&quot;          &quot;viele&quot;               &quot;entgegenwirken&quot;   
-##  [5,] &quot;beendet&quot;                  &quot;steuern&quot;              &quot;versicherungsfremde&quot; &quot;bestehenden&quot;      
-##  [6,] &quot;deutsche&quot;                 &quot;folgen&quot;               &quot;versorgung&quot;          &quot;aufgrund&quot;         
-##  [7,] &quot;verbessern&quot;               &quot;landwirtschaft&quot;       &quot;kommunen&quot;            &quot;achten&quot;           
-##  [8,] &quot;rahmenbedingungen&quot;        &quot;ämterpatronage&quot;       &quot;doppelbesteuerung&quot;   &quot;gehört&quot;           
-##  [9,] &quot;selbstbestimmung&quot;         &quot;parteienfinanzierung&quot; &quot;souveränen&quot;          &quot;souverän&quot;         
-## [10,] &quot;gesetz&quot;                   &quot;nationale&quot;            &quot;kulturen&quot;            &quot;gewährleisten&quot;    
-##       topic19       topic20             
-##  [1,] &quot;wohnungsbau&quot; &quot;ziel&quot;              
-##  [2,] &quot;erreichen&quot;   &quot;erhalt&quot;            
-##  [3,] &quot;eltern&quot;      &quot;entscheidungen&quot;    
-##  [4,] &quot;brauchen&quot;    &quot;folge&quot;             
-##  [5,] &quot;mutter&quot;      &quot;2050&quot;              
-##  [6,] &quot;entstehen&quot;   &quot;bürokratie&quot;        
-##  [7,] &quot;zeigen&quot;      &quot;sicherheitspolitik&quot;
-##  [8,] &quot;endlich&quot;     &quot;innere&quot;            
-##  [9,] &quot;unbedingt&quot;   &quot;ehe&quot;               
-## [10,] &quot;behandlung&quot;  &quot;differenzierung&quot;</code></pre>
-<pre class="r"><code>#  topics from FDP programs
-fdp_lda_k20 &lt;- textmodel_lda(dfm(programs[programs$party == &quot;FDP&quot;], remove_punct=TRUE, remove=(stopwords(&quot;german&quot;))), k=20)
-terms(fdp_lda_k20)</code></pre>
-<pre><code>##       topic1            topic2            topic3              topic4              
-##  [1,] &quot;demographischen&quot; &quot;hause&quot;           &quot;bundesamt&quot;         &quot;\200&quot;                 
-##  [2,] &quot;fischerei&quot;       &quot;ordnungspolitik&quot; &quot;unseres&quot;           &quot;privatisieren&quot;     
-##  [3,] &quot;verantwortlich&quot;  &quot;gesund&quot;          &quot;fast&quot;              &quot;11&quot;                
-##  [4,] &quot;abholzung&quot;       &quot;erfordernisse&quot;   &quot;sogar&quot;             &quot;rentenversicherung&quot;
-##  [5,] &quot;dürfen&quot;          &quot;benötigt&quot;        &quot;status&quot;            &quot;festgesetzt&quot;       
-##  [6,] &quot;freizeit-&quot;       &quot;vier&quot;            &quot;ruhestand&quot;         &quot;individuellen&quot;     
-##  [7,] &quot;zeitalter&quot;       &quot;gebot&quot;           &quot;grundfertigkeiten&quot; &quot;abs&quot;               
-##  [8,] &quot;örtlichen&quot;       &quot;kultur-&quot;         &quot;privatsphäre&quot;      &quot;markt&quot;             
-##  [9,] &quot;zumindest&quot;       &quot;bereichern&quot;      &quot;strategien&quot;        &quot;2&quot;                 
-## [10,] &quot;jugendhilfe&quot;     &quot;legen&quot;           &quot;glauben&quot;           &quot;bachelor-&quot;         
-##       topic5             topic6              topic7                 topic8        
-##  [1,] &quot;treten&quot;           &quot;ausbau&quot;            &quot;anlagen&quot;              &quot;besonderer&quot;  
-##  [2,] &quot;fortsetzen&quot;       &quot;könnten&quot;           &quot;gesetzgebung&quot;         &quot;minderheiten&quot;
-##  [3,] &quot;krise&quot;            &quot;mitteln&quot;           &quot;intensiviert&quot;         &quot;gesetzlich&quot;  
-##  [4,] &quot;gleichzeitig&quot;     &quot;krankenkassen&quot;     &quot;rechtspolitik&quot;        &quot;ausgestattet&quot;
-##  [5,] &quot;möchten&quot;          &quot;geschwindigkeiten&quot; &quot;pflegebedürftigen&quot;    &quot;hinblick&quot;    
-##  [6,] &quot;stabilitätsunion&quot; &quot;privat&quot;            &quot;personal&quot;             &quot;aufgaben&quot;    
-##  [7,] &quot;darum&quot;            &quot;lebens&quot;            &quot;behörde&quot;              &quot;erlauben&quot;    
-##  [8,] &quot;einführen&quot;        &quot;artenvielfalt&quot;     &quot;innovationsfähigkeit&quot; &quot;anzustreben&quot; 
-##  [9,] &quot;eingriffe&quot;        &quot;chancengleichheit&quot; &quot;3&quot;                    &quot;zugelassen&quot;  
-## [10,] &quot;stabile&quot;          &quot;beendigung&quot;        &quot;erwachsenen&quot;          &quot;unverzüglich&quot;
-##       topic9               topic10       topic11           topic12              topic13      
-##  [1,] &quot;mitte&quot;              &quot;vernetzung&quot;  &quot;demokraten&quot;      &quot;modell&quot;             &quot;mehr&quot;       
-##  [2,] &quot;erwirtschaften&quot;     &quot;engagement&quot;  &quot;freie&quot;           &quot;bundestag&quot;          &quot;deutschland&quot;
-##  [3,] &quot;be&quot;                 &quot;wahrnehmung&quot; &quot;fordern&quot;         &quot;fehlen&quot;             &quot;dass&quot;       
-##  [4,] &quot;einbeziehung&quot;       &quot;jederzeit&quot;   &quot;digitalisierung&quot; &quot;gesetze&quot;            &quot;müssen&quot;     
-##  [5,] &quot;gewährung&quot;          &quot;vertiefung&quot;  &quot;bürgerinnen&quot;     &quot;welthandel&quot;         &quot;menschen&quot;   
-##  [6,] &quot;mindesteinkommen&quot;   &quot;sucht&quot;       &quot;digitalen&quot;       &quot;eher&quot;               &quot;dafür&quot;      
-##  [7,] &quot;bürgergesellschaft&quot; &quot;landes&quot;      &quot;weltbeste&quot;       &quot;kindergärten&quot;       &quot;deshalb&quot;    
-##  [8,] &quot;grundsätzen&quot;        &quot;hinweg&quot;      &quot;zudem&quot;           &quot;ergänzt&quot;            &quot;unternehmen&quot;
-##  [9,] &quot;solidarität&quot;        &quot;geprägt&quot;     &quot;viele&quot;           &quot;behinderte&quot;         &quot;setzen&quot;     
-## [10,] &quot;erforderliche&quot;      &quot;bleiben&quot;     &quot;daten&quot;           &quot;gleichberechtigung&quot; &quot;sollen&quot;     
-##       topic14              topic15                 topic16       topic17            
-##  [1,] &quot;muß&quot;                &quot;reduzieren&quot;            &quot;fdp&quot;         &quot;z.b&quot;              
-##  [2,] &quot;z&quot;                  &quot;kostengünstig&quot;         &quot;fordert&quot;     &quot;mobilität&quot;        
-##  [3,] &quot;b&quot;                  &quot;kultur-&quot;               &quot;setzt&quot;       &quot;zuwanderung&quot;      
-##  [4,] &quot;liberale&quot;           &quot;25&quot;                    &quot;hochschulen&quot; &quot;ostdeutschland&quot;   
-##  [5,] &quot;bürgergesellschaft&quot; &quot;fördermaßnahmen&quot;       &quot;lehnt&quot;       &quot;fachhochschulen&quot;  
-##  [6,] &quot;arbeitsplätze&quot;      &quot;evaluation&quot;            &quot;tritt&quot;       &quot;föderalismus&quot;     
-##  [7,] &quot;11&quot;                 &quot;unerlässlich&quot;          &quot;dringend&quot;    &quot;berufsschulen&quot;    
-##  [8,] &quot;bevormundung&quot;       &quot;eigenverantwortlichen&quot; &quot;rechnung&quot;    &quot;2002&quot;             
-##  [9,] &quot;programm&quot;           &quot;afghanistan&quot;           &quot;bürgerinnen&quot; &quot;selbstständigkeit&quot;
-## [10,] &quot;steuerbürger&quot;       &quot;liquidität&quot;            &quot;partei&quot;      &quot;geboten&quot;          
-##       topic18          topic19          topic20           
-##  [1,] &quot;verteidigen&quot;    &quot;energiewende&quot;   &quot;verloren&quot;        
-##  [2,] &quot;land-&quot;          &quot;unabhängigkeit&quot; &quot;gewinne&quot;         
-##  [3,] &quot;flächendeckend&quot; &quot;sanierung&quot;      &quot;wagniskapital&quot;   
-##  [4,] &quot;menschenrecht&quot;  &quot;branche&quot;        &quot;minderheiten&quot;    
-##  [5,] &quot;sinnvoller&quot;     &quot;erwiesen&quot;       &quot;sozialstaat&quot;     
-##  [6,] &quot;globales&quot;       &quot;kurs&quot;           &quot;lebensgestaltung&quot;
-##  [7,] &quot;regulierung&quot;    &quot;effizienter&quot;    &quot;ständigen&quot;       
-##  [8,] &quot;volle&quot;          &quot;schuldenberge&quot;  &quot;anwohner&quot;        
-##  [9,] &quot;vereinfachte&quot;   &quot;existenz&quot;       &quot;gerechten&quot;       
-## [10,] &quot;beschäftigte&quot;   &quot;dient&quot;          &quot;ausgaben&quot;</code></pre>
+<pre><code>##       topic1                     topic2             topic3             topic4             
+##  [1,] &quot;informieren&quot;              &quot;täterinnen&quot;       &quot;bestrafung&quot;       &quot;einmischen&quot;       
+##  [2,] &quot;10&quot;                       &quot;verwendet&quot;        &quot;2014&quot;             &quot;mrd&quot;              
+##  [3,] &quot;hektar&quot;                   &quot;geschieht&quot;        &quot;langsam&quot;          &quot;6&quot;                
+##  [4,] &quot;potential&quot;                &quot;ausbildungsplatz&quot; &quot;regelsätze&quot;       &quot;energiewende&quot;     
+##  [5,] &quot;finanzierungsinstrumente&quot; &quot;per&quot;              &quot;medizinisch&quot;      &quot;5&quot;                
+##  [6,] &quot;unterschiedlicher&quot;        &quot;fort&quot;             &quot;koordinierung&quot;    &quot;urheberinnen&quot;     
+##  [7,] &quot;herzustellen&quot;             &quot;substanz&quot;         &quot;neue&quot;             &quot;transformation&quot;   
+##  [8,] &quot;km&quot;                       &quot;erlangen&quot;         &quot;studien&quot;          &quot;teilhaben&quot;        
+##  [9,] &quot;chemische&quot;                &quot;u.a&quot;              &quot;ergebnis&quot;         &quot;altersarmut&quot;      
+## [10,] &quot;kultureinrichtungen&quot;      &quot;reich&quot;            &quot;betriebsvermögen&quot; &quot;schlüsselprojekte&quot;
+##       topic5                  topic6        topic7                   topic8              
+##  [1,] &quot;mindestlohns&quot;          &quot;ecke&quot;        &quot;steuerzahlerinnen&quot;      &quot;innen&quot;             
+##  [2,] &quot;gleichzeitig&quot;          &quot;potenzial&quot;   &quot;prioritäten&quot;            &quot;digitalisierung&quot;   
+##  [3,] &quot;holen&quot;                 &quot;öpnv&quot;        &quot;akteuren&quot;               &quot;projekte&quot;          
+##  [4,] &quot;missbrauch&quot;            &quot;euro&quot;        &quot;ende&quot;                   &quot;bürger&quot;            
+##  [5,] &quot;zieht&quot;                 &quot;arbeitgeber&quot; &quot;bildet&quot;                 &quot;geflüchtete&quot;       
+##  [6,] &quot;wünsche&quot;               &quot;alltag&quot;      &quot;treibhausgasemissionen&quot; &quot;drei&quot;              
+##  [7,] &quot;versorgungssicherheit&quot; &quot;zwei&quot;        &quot;veröffentlicht&quot;         &quot;handel&quot;            
+##  [8,] &quot;küsten&quot;                &quot;rechtsstaat&quot; &quot;umweltverträgliche&quot;     &quot;klimakrise&quot;        
+##  [9,] &quot;5&quot;                     &quot;fühlen&quot;      &quot;parlament&quot;              &quot;beispiel&quot;          
+## [10,] &quot;somit&quot;                 &quot;akzeptieren&quot; &quot;aufklärung&quot;             &quot;flüchtlingspolitik&quot;
+##       topic9                 topic10             topic11             topic12          
+##  [1,] &quot;chance&quot;               &quot;beschäftigten&quot;     &quot;ostdeutschland&quot;    &quot;bündnis&quot;        
+##  [2,] &quot;jungen&quot;               &quot;jobcenter&quot;         &quot;nächsten&quot;          &quot;90&quot;             
+##  [3,] &quot;erteilen&quot;             &quot;massiven&quot;          &quot;2002&quot;              &quot;globalisierung&quot; 
+##  [4,] &quot;mitte&quot;                &quot;klimaschutzgesetz&quot; &quot;legislaturperiode&quot; &quot;cdu&quot;            
+##  [5,] &quot;umweltrecht&quot;          &quot;schweren&quot;          &quot;fortsetzen&quot;        &quot;lohnnebenkosten&quot;
+##  [6,] &quot;rechtfertigen&quot;        &quot;fälle&quot;             &quot;umweltpolitik&quot;     &quot;ausgrenzung&quot;    
+##  [7,] &quot;gesundes&quot;             &quot;steuerpakt&quot;        &quot;grundsicherung&quot;    &quot;csu&quot;            
+##  [8,] &quot;soweit&quot;               &quot;europaparlament&quot;   &quot;cyberspace&quot;        &quot;ökologie&quot;       
+##  [9,] &quot;wissenschaftlerinnen&quot; &quot;gegenteil&quot;         &quot;reformieren&quot;       &quot;senkung&quot;        
+## [10,] &quot;afghanistan&quot;          &quot;stunde&quot;            &quot;1998&quot;              &quot;ernährung&quot;      
+##       topic13                topic14         topic15             topic16               
+##  [1,] &quot;lieber&quot;               &quot;sozialpolitik&quot; &quot;entwicklungsziele&quot; &quot;gesellschaftsvertrag&quot;
+##  [2,] &quot;urheberrecht&quot;         &quot;steuerreform&quot;  &quot;rechtsstaatliche&quot;  &quot;deal&quot;                
+##  [3,] &quot;verlangen&quot;            &quot;antwort&quot;       &quot;lieben&quot;            &quot;new&quot;                 
+##  [4,] &quot;rechtsschutz&quot;         &quot;erzielt&quot;       &quot;ökologischer&quot;      &quot;krise&quot;               
+##  [5,] &quot;ausgeweitet&quot;          &quot;staatlich&quot;     &quot;etwa&quot;              &quot;wirtschaftskrise&quot;    
+##  [6,] &quot;informationsfreiheit&quot; &quot;bedarf&quot;        &quot;carsharing&quot;        &quot;blockaden&quot;           
+##  [7,] &quot;handlungsfähigkeit&quot;   &quot;eu&quot;            &quot;genießen&quot;          &quot;umfassend&quot;           
+##  [8,] &quot;konsequenter&quot;         &quot;zunehmende&quot;    &quot;arbeitsschutz&quot;     &quot;bestandteil&quot;         
+##  [9,] &quot;später&quot;               &quot;werben&quot;        &quot;prioritäten&quot;       &quot;hochschule&quot;          
+## [10,] &quot;aufsichtsräte&quot;        &quot;beschränkung&quot;  &quot;geburtshilfe&quot;      &quot;nachhaltiges&quot;        
+##       topic17         topic18                      topic19               topic20      
+##  [1,] &quot;leitlinien&quot;    &quot;direkte&quot;                    &quot;egal&quot;                &quot;dass&quot;       
+##  [2,] &quot;ausgesetzt&quot;    &quot;steigenden&quot;                 &quot;emissionen&quot;          &quot;menschen&quot;   
+##  [3,] &quot;akzeptieren&quot;   &quot;beschäftigungsverhältnisse&quot; &quot;unterbringung&quot;       &quot;mehr&quot;       
+##  [4,] &quot;anbieten&quot;      &quot;milliardenhöhe&quot;             &quot;abgeordnete&quot;         &quot;müssen&quot;     
+##  [5,] &quot;nachteile&quot;     &quot;entgehen&quot;                   &quot;willen&quot;              &quot;dafür&quot;      
+##  [6,] &quot;fußabdruck&quot;    &quot;begrenzung&quot;                 &quot;3,5&quot;                 &quot;deshalb&quot;    
+##  [7,] &quot;lautet&quot;        &quot;rechtliche&quot;                 &quot;arbeitsversicherung&quot; &quot;setzen&quot;     
+##  [8,] &quot;arbeitsschutz&quot; &quot;konkurrenz&quot;                 &quot;kurs&quot;                &quot;deutschland&quot;
+##  [9,] &quot;anstreben&quot;     &quot;spiel&quot;                      &quot;waffen&quot;              &quot;neue&quot;       
+## [10,] &quot;schwache&quot;      &quot;angst&quot;                      &quot;gewonnen&quot;            &quot;grüne&quot;</code></pre>
 </div>
 
 
