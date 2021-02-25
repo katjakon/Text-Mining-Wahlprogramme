@@ -100,6 +100,18 @@ terms(fdp_lda_k20)
 programs_2002_lda <- textmodel_lda(dfm(programs[programs$"year" == 2002], remove_punct=TRUE, remove=(stopwords("german"))), k=10)
 terms(programs_2002_lda)
 
+# topics from 2005
+programs_2005_lda <- textmodel_lda(dfm(programs[programs$"year" == 2005], remove_punct=TRUE, remove=(stopwords("german"))), k=10)
+terms(programs_2005_lda)
+
+# topics from 2009
+programs_2009_lda <- textmodel_lda(dfm(programs[programs$"year" == 2009], remove_punct=TRUE, remove=(stopwords("german"))), k=10)
+terms(programs_2009_lda)
+
+# topics from 2013
+programs_2013_lda <- textmodel_lda(dfm(programs[programs$"year" == 2013], remove_punct=TRUE, remove=(stopwords("german"))), k=10)
+terms(programs_2013_lda)
+
 # topics from 2017
 programs_2017_lda <- textmodel_lda(dfm(programs[programs$"year" == 2017], remove_punct=TRUE, remove=(stopwords("german"))), k=10)
 terms(programs_2017_lda)
