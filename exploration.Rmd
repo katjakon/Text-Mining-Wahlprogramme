@@ -201,3 +201,15 @@ Für die einzelnen Parteien wie folgt (hier nur exemplarisch, da sich keine all 
 gruene_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "B90dieGruene"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
 terms(gruene_lda_k20)
 ```
+
+```{r topic_models_by_year}
+# topics from 2002
+programs_2002_lda <- textmodel_lda(dfm(programs[programs$"year" == 2002], remove_punct=TRUE, remove=(stopwords("german"))), k=10)
+terms(programs_2002_lda)
+```
+
+```{r topic_models_by_year}
+# topics from 2017
+programs_2017_lda <- textmodel_lda(dfm(programs[programs$"year" == 2017], remove_punct=TRUE, remove=(stopwords("german"))), k=10)
+terms(programs_2017_lda)
+```
