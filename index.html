@@ -844,6 +844,79 @@ terms(gruene_lda_k20)</code></pre>
 ##  [8,] &quot;arbeitsschutz&quot; &quot;konkurrenz&quot;                 &quot;kurs&quot;                &quot;deutschland&quot;
 ##  [9,] &quot;anstreben&quot;     &quot;spiel&quot;                      &quot;waffen&quot;              &quot;neue&quot;       
 ## [10,] &quot;schwache&quot;      &quot;angst&quot;                      &quot;gewonnen&quot;            &quot;grüne&quot;</code></pre>
+<p>Ebenso kann man natürlich auch für einzelne Jahre Topic Models generieren und vergleichen:</p>
+<pre class="r"><code># topics from 2002
+programs_2002_lda &lt;- textmodel_lda(dfm(programs[programs$&quot;year&quot; == 2002], remove_punct=TRUE, remove=(stopwords(&quot;german&quot;))), k=10)
+terms(programs_2002_lda)</code></pre>
+<pre><code>##       topic1           topic2        topic3           topic4                      
+##  [1,] &quot;pds&quot;            &quot;fdp&quot;         &quot;grünen&quot;         &quot;erhöhung&quot;                  
+##  [2,] &quot;öffentliche&quot;    &quot;fordert&quot;     &quot;setzen&quot;         &quot;vorsorge&quot;                  
+##  [3,] &quot;frauen&quot;         &quot;wettbewerb&quot;  &quot;90&quot;             &quot;bürokratischen&quot;            
+##  [4,] &quot;kooperation&quot;    &quot;daher&quot;       &quot;frauen&quot;         &quot;ergänzen&quot;                  
+##  [5,] &quot;öffentlicher&quot;   &quot;hochschulen&quot; &quot;bündnis&quot;        &quot;bürokratische&quot;             
+##  [6,] &quot;treten&quot;         &quot;schulen&quot;     &quot;ökologische&quot;    &quot;entwicklungszusammenarbeit&quot;
+##  [7,] &quot;prozent&quot;        &quot;staat&quot;       &quot;demokratie&quot;     &quot;rot-grüne&quot;                 
+##  [8,] &quot;heißt&quot;          &quot;liberale&quot;    &quot;ökologischen&quot;   &quot;soweit&quot;                    
+##  [9,] &quot;demokratischen&quot; &quot;bürger&quot;      &quot;globalisierung&quot; &quot;grundsätzliche&quot;            
+## [10,] &quot;wenden&quot;         &quot;setzt&quot;       &quot;nächsten&quot;       &quot;gerade&quot;                    
+##       topic5             topic6        topic7         topic8           topic9        
+##  [1,] &quot;zuwanderung&quot;      &quot;müssen&quot;      &quot;cdu&quot;          &quot;1998&quot;           &quot;\200&quot;           
+##  [2,] &quot;betrieb&quot;          &quot;dass&quot;        &quot;csu&quot;          &quot;erneuerung&quot;     &quot;wohlstand&quot;   
+##  [3,] &quot;weiterentwickelt&quot; &quot;deutschland&quot; &quot;rot-grün&quot;     &quot;zusammenhalt&quot;   &quot;zuwanderung&quot; 
+##  [4,] &quot;unverzichtbare&quot;   &quot;mehr&quot;        &quot;40&quot;           &quot;korruption&quot;     &quot;kriminalität&quot;
+##  [5,] &quot;europäischer&quot;     &quot;menschen&quot;    &quot;verlässliche&quot; &quot;ausbauen&quot;       &quot;wachstum&quot;    
+##  [6,] &quot;einnahmen&quot;        &quot;politik&quot;     &quot;rund&quot;         &quot;qualifizierung&quot; &quot;justiz&quot;      
+##  [7,] &quot;sogenannten&quot;      &quot;neue&quot;        &quot;sorgen&quot;       &quot;streben&quot;        &quot;junge&quot;       
+##  [8,] &quot;universitäten&quot;    &quot;deshalb&quot;     &quot;betriebe&quot;     &quot;moderne&quot;        &quot;solidarität&quot; 
+##  [9,] &quot;einzelne&quot;         &quot;sowie&quot;       &quot;leistung&quot;     &quot;entwickelt&quot;     &quot;innere&quot;      
+## [10,] &quot;abzubauen&quot;        &quot;kinder&quot;      &quot;deutschlands&quot; &quot;mrd&quot;            &quot;hoch&quot;        
+##       topic10        
+##  [1,] &quot;zusammenhang&quot; 
+##  [2,] &quot;klimaschutz&quot;  
+##  [3,] &quot;bedürfnissen&quot; 
+##  [4,] &quot;entsprechende&quot;
+##  [5,] &quot;beziehungen&quot;  
+##  [6,] &quot;erreicht&quot;     
+##  [7,] &quot;agenda&quot;       
+##  [8,] &quot;steuerrecht&quot;  
+##  [9,] &quot;überprüft&quot;    
+## [10,] &quot;modell&quot;</code></pre>
+<pre class="r"><code># topics from 2017
+programs_2017_lda &lt;- textmodel_lda(dfm(programs[programs$&quot;year&quot; == 2017], remove_punct=TRUE, remove=(stopwords(&quot;german&quot;))), k=10)
+terms(programs_2017_lda)</code></pre>
+<pre><code>##       topic1               topic2           topic3        topic4          topic5      
+##  [1,] &quot;vorrang&quot;            &quot;innen&quot;          &quot;dass&quot;        &quot;deutschland&quot;   &quot;freie&quot;     
+##  [2,] &quot;grundlegende&quot;       &quot;grüne&quot;          &quot;menschen&quot;    &quot;cdu&quot;           &quot;demokraten&quot;
+##  [3,] &quot;wirkt&quot;              &quot;unsere&quot;         &quot;mehr&quot;        &quot;csu&quot;           &quot;daher&quot;     
+##  [4,] &quot;wirtschaftspolitik&quot; &quot;grünen&quot;         &quot;deutschland&quot; &quot;zahl&quot;          &quot;fordern&quot;   
+##  [5,] &quot;kontrollieren&quot;      &quot;beispiel&quot;       &quot;müssen&quot;      &quot;erfolg&quot;        &quot;staat&quot;     
+##  [6,] &quot;aufgehoben&quot;         &quot;grün&quot;           &quot;dafür&quot;       &quot;unserer&quot;       &quot;leistungen&quot;
+##  [7,] &quot;meist&quot;              &quot;gestalten&quot;      &quot;sollen&quot;      &quot;unsere&quot;        &quot;weltbeste&quot; 
+##  [8,] &quot;angehoben&quot;          &quot;endlich&quot;        &quot;deshalb&quot;     &quot;seit&quot;          &quot;beispiel&quot;  
+##  [9,] &quot;missbraucht&quot;        &quot;landwirtschaft&quot; &quot;stärken&quot;     &quot;arbeitsplätze&quot; &quot;zudem&quot;     
+## [10,] &quot;kommunaler&quot;         &quot;faire&quot;          &quot;setzen&quot;      &quot;erheblich&quot;     &quot;daten&quot;     
+##       topic6          topic7              topic8                 topic9        
+##  [1,] &quot;müssen&quot;        &quot;spd&quot;               &quot;erzieher&quot;             &quot;afd&quot;         
+##  [2,] &quot;linke&quot;         &quot;weiterentwickeln&quot;  &quot;geschehen&quot;            &quot;deutschland&quot; 
+##  [3,] &quot;menschen&quot;      &quot;gewerkschaften&quot;    &quot;öpnv&quot;                 &quot;deutschen&quot;   
+##  [4,] &quot;öffentliche&quot;   &quot;verlässliche&quot;      &quot;minijobs&quot;             &quot;deutsche&quot;    
+##  [5,] &quot;arbeit&quot;        &quot;arbeitnehmerinnen&quot; &quot;rückkehrrecht&quot;        &quot;fordert&quot;     
+##  [6,] &quot;soziale&quot;       &quot;erfolgreich&quot;       &quot;zwei-klassen-medizin&quot; &quot;erhalten&quot;    
+##  [7,] &quot;beschäftigten&quot; &quot;steigern&quot;          &quot;stiftungen&quot;           &quot;insbesondere&quot;
+##  [8,] &quot;statt&quot;         &quot;aufbau&quot;            &quot;druck&quot;                &quot;interessen&quot;  
+##  [9,] &quot;sozialen&quot;      &quot;zivilgesellschaft&quot; &quot;grünen&quot;               &quot;deren&quot;       
+## [10,] &quot;kapitel&quot;       &quot;hinaus&quot;            &quot;richten&quot;              &quot;euro&quot;        
+##       topic10                   
+##  [1,] &quot;frauen&quot;                  
+##  [2,] &quot;lebendige&quot;               
+##  [3,] &quot;greifen&quot;                 
+##  [4,] &quot;unabhängige&quot;             
+##  [5,] &quot;öffnen&quot;                  
+##  [6,] &quot;zivilen&quot;                 
+##  [7,] &quot;arbeitslosenversicherung&quot;
+##  [8,] &quot;ausstatten&quot;              
+##  [9,] &quot;freiräume&quot;               
+## [10,] &quot;klima-&quot;</code></pre>
 </div>
 
 
