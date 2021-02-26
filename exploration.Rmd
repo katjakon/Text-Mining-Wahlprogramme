@@ -204,7 +204,7 @@ terms(gruene_lda_k20)
 
 Ebenso kann man natürlich auch für einzelne Jahre Topic Models generieren und vergleichen:
 
-```{r topic_models_by_year}
+```{r topic_models_by_year2002}
 # topics from 2002
 programs_2002_lda <- textmodel_lda(dfm(programs[programs$"year" == 2002], remove_punct=TRUE, remove=(stopwords("german"))), k=10)
 terms(programs_2002_lda)
