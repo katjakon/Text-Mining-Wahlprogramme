@@ -394,7 +394,7 @@ programs &lt;- readtext(&quot;Korpus-Dateien&quot;,
 
 # Convert characters in year column to integers
 docvars(programs, field=&quot;year&quot;) &lt;- as.integer(docvars(programs, field=&quot;year&quot;))</code></pre>
-<p>Mit der <code>summary</code>- Funktion kann ein erster Überblick über das Korpus gegeben werden. Dabei ist auffällig, dass die Wahlprogramme sich in ihrer Länge mitunter sehr unterscheiden: Beispielsweise ist das Wahlrprogramm der AFD von 2017 nur etwa 450 Token lang, während die meisten anderen Wahlprogramme über 5000 Token lang sind.</p>
+<p>Mit der <code>summary</code>- Funktion kann ein erster Überblick über das Korpus gegeben werden. Dabei ist auffällig, dass die Wahlprogramme sich in ihrer Länge mitunter sehr unterscheiden: Beispielsweise ist das Wahlrprogramm der AFD von 2017 nur etwa 900 Token lang, während die meisten anderen Wahlprogramme weit über 20.000 Token lang sind.</p>
 <pre class="r"><code>summary(programs)</code></pre>
 <pre><code>## Corpus consisting of 27 documents, showing 27 documents:
 ## 
@@ -617,16 +617,8 @@ textplot_wordcloud(eu%&gt;% corpus() %&gt;% dfm(), max_words = 100)</code></pre>
 <h2>TF-IDF</h2>
 <p>Mithilfe von Term-Frequency und Inverted-Document-Frequency lassen sich Terme bestimmen, die für ein Dokument charakteristisch sind. Der Ausgabewert von <code>dfm_tfidf</code> ist eine Document-Feature-Matrix, sodass mit den Funktionen <code>dfm_subset</code> und <code>topfeatures</code> Terme ausgeben werden können, die besonders charakteristisch für eine bestimmte Gruppe sind. Im Folgenden sind auf diese Art kennzeichnende Begriffe für die einzelnen Parteien bestimmt worden:</p>
 <pre class="r"><code>tfidf &lt;- dfm_tfidf(program_toks %&gt;% dfm(groups = &quot;party&quot;))
-topfeatures(tfidf[1,])</code></pre>
-<pre><code>##                         afd            gender-ideologie sozialversicherungsabkommen 
-##                   40.109470                    5.915686                    5.070588 
-##        parteienfinanzierung           volkssouveränität              ämterpatronage 
-##                    3.808476                    3.380392                    3.380392 
-##              parlamentarier            gender-forschung           deutsch-türkische 
-##                    3.380392                    3.380392                    3.380392 
-##                kultursorten 
-##                    3.380392</code></pre>
-<pre class="r"><code># Distinctive terms for each party
+
+# Distinctive terms for each party
 afd &lt;- dfm_subset(tfidf, tfidf$&quot;party&quot;==&quot;AfD&quot;)
 topfeatures(afd, n=10)</code></pre>
 <pre><code>##                         afd            gender-ideologie sozialversicherungsabkommen 
