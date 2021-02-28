@@ -35,7 +35,7 @@ programs <- readtext("Korpus-Dateien",
 # Convert characters in year column to integers
 docvars(programs, field="year") <- as.integer(docvars(programs, field="year"))
 ```
-Mit der `summary`- Funktion kann ein erster Überblick über das Korpus gegeben werden. Dabei ist auffällig, dass die Wahlprogramme sich in ihrer Länge mitunter sehr unterscheiden: Beispielsweise ist das Wahlrprogramm der AFD von 2017 nur etwa 450 Token lang, während die meisten anderen Wahlprogramme über 5000 Token lang sind. 
+Mit der `summary`- Funktion kann ein erster Überblick über das Korpus gegeben werden. Dabei ist auffällig, dass die Wahlprogramme sich in ihrer Länge mitunter sehr unterscheiden: Beispielsweise ist das Wahlrprogramm der AFD von 2017 nur etwa 900 Token lang, während die meisten anderen Wahlprogramme weit über 20.000 Token lang sind. 
 ```{r Zusammenfassung}
 summary(programs)
 ```
@@ -137,7 +137,7 @@ Mithilfe von Term-Frequency und Inverted-Document-Frequency lassen sich Terme be
 
 ```{r tfidf}
 tfidf <- dfm_tfidf(program_toks %>% dfm(groups = "party"))
-topfeatures(tfidf[1,])
+
 # Distinctive terms for each party
 afd <- dfm_subset(tfidf, tfidf$"party"=="AfD")
 topfeatures(afd, n=10)
