@@ -40,8 +40,6 @@ programs_texts <- readtext("Korpus-Dateien",
 
 # Lemmatize texts
 programs <- lemmatize(programs_texts, model_deutsch) %>% corpus()
-programs <- program
-
 
 # Convert characters in year column to integers
 docvars(programs, field="year") <- as.integer(docvars(programs, field="year"))
@@ -127,7 +125,6 @@ top.2013 <- as.data.frame(topfeatures(y2013, n= 100))
 y2017 <- programs[programs$year == 2017] %>% tokens(remove_punct = TRUE) %>% 
   tokens_remove(custom_stops, padding = FALSE) %>% dfm()
 top.2017 <- as.data.frame(topfeatures(y2017, n= 100))
-write.csv(top.2017, "data/top_2017.csv", fileEncoding = "utf-8")
 
 
 #######################
@@ -207,10 +204,32 @@ climate_dict <- c( "klimawandel",
                    "kohlenstoffdioxid",
                    "emission*")
 
-klima.dfm <- dfm(program_dfm, select = climate_dict)
+klima.dfm <- dfm(program_dfm, select = climate_dict) %>% dfm(groups = "party")
+klima.df <- convert(klima.dfm, to = "data.frame")
+climate_col <- colnames(klima.df)[2:length(colnames(klima.df))]
+climate_terms <- data.frame(climate_col)
+
+for (n in 1:nrow(klima.df)){
+  curr.party <- klima.df[n,1]
+  curr.dfm <- dfm_subset(klima.dfm, party == curr.party)
+  curr.df <- convert(curr.dfm, to = "data.frame")
+  climate_terms[curr.party] = as.numeric(curr.df[1,2:length(curr.df)])
+}
+klima.all <- dfm(klima.dfm, groups = "type")
+climate_terms["insgesamt"] <- as.numeric(convert(klima.all, to = "data.frame")[1,2:length(klima.df)])
+
+ggplot(climate_terms, aes(fill =c("AfD", "B90dieGruene" ,"CDU", "DIELINKE","FDP","PDS","SPD"), y=insgesamt, x=climate_col)) + 
+  geom_bar(position="stack", stat="identity")+
+  ggtitle("Anzahl der Klimabegriffe über Jahre")+
+  xlab("Jahre")+
+  ylab("Begriffe")+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
 years <- klima.dfm$year
 Parteien <- klima.dfm$party
-
+Parteien
 sum_begriffe <-  c()
 my.data <- data.frame(years, Parteien)
 
@@ -222,7 +241,7 @@ my.data$nterms <- sum_begriffe
 
 ggplot(my.data, aes(fill=Parteien, y=nterms, x=years)) + 
   geom_bar(position="stack", stat="identity")+
-  ggtitle("Anzahl der Klimabegriffe")+
+  ggtitle("Anzahl der Klimabegriffe über Jahre")+
   xlab("Jahre")+
   ylab("Begriffe")+
   theme_minimal()
