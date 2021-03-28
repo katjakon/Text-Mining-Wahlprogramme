@@ -504,7 +504,39 @@ opp_roots <- roots_for_group(sub_model_opposition, opposition_list, senti_dict)
                                  
 # use function on government subset of annotated model
 gov_roots <- roots_for_group(sub_model_regierung, regierung_list, senti_dict)
-                                     
+
+
+# Self referential verbs
+verbs.top.50 <- union(head(gov_roots, 50)$lemma, head(opp_roots, 50)$lemma)
+freq.verbs <- data.frame(matrix(ncol=3, nrow=0))
+colnames(freq.verbs) <- c("lemma", "freq_gov", "freq_opp")
+sum.all.gov <- sum(gov_roots$freq)
+sum.all.opp <- sum(opp_roots$freq)
+for (i in 1:length(verbs.top.50)){
+  curr.verb <- verbs.top.50[i]
+  freq.gov <- sum(filter(gov_roots, lemma == curr.verb)$freq)/sum.all.gov
+  freq.opp <- sum(filter(opp_roots, lemma == curr.verb)$freq)/sum.all.opp
+  curr.row <- data.frame(lemma=curr.verb, freq_gov=freq.gov, freq_opp = freq.opp)
+  freq.verbs <- rbind(freq.verbs, curr.row)
+}
+freq.verbs
+gov.greater <- ifelse(freq.verbs$freq_gov >= freq.verbs$freq_opp, TRUE, FALSE)
+freq.verbs$gov.greater <- gov.greater
+
+# Plot results
+ggplot(freq.verbs, aes(y = freq_gov, x = freq_opp, label =lemma, color = gov.greater))+
+  geom_text(size = 5)+
+  scale_x_continuous(trans = 'log10', breaks = c(0, 0.001, 0.010, 0.1)) +
+  scale_y_continuous(trans = 'log10', breaks = c(0, 0.001, 0.010, 0.05))+
+  scale_color_manual(values = c('TRUE' = 'darkblue', 'FALSE' = 'darkred'), guide = "none")+
+  theme_minimal()+
+  labs(x="Relative Frequenz in Oppositionsparteien",
+       y="Relative Frequenz in Regierungsparteien",
+       title="Verben in selbstreferentiellen Sätzen")+
+  theme(axis.text=element_text(size=16),
+        axis.title=element_text(size=20,face="bold"))
+
+
 # optional: save to csv                                
 write.csv2(opp_roots, 'opp_roots_info.csv')
 write.csv2(gov_roots, 'gov_roots_info.csv')
@@ -552,3 +584,6 @@ head(opp_nouns)
 head(gov_nouns)
 head(opp_adv)
 head(gov_adv)
+
+
+
