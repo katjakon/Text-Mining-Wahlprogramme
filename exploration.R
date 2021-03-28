@@ -377,6 +377,15 @@ wir_die_opp_roots <- subset(wir_die_opposition_sents, dep_rel == 'root')
 
 opp_df <- wir_die_opp_roots[c(1, 6:7, 10)]
 
+# tense
+opp_df$tense <- '-'
+opp_df_with_tense <- opp_df[grepl('Tense', opp_df$feats) == TRUE,]
+opp_df_without_tense <- opp_df[grepl('Tense', opp_df$feats) == FALSE,]
+
+opp_df_with_tense$tense <- sub(".*(Tense=)([A-Za-z]+)[|]?.*", "\\2", opp_df_with_tense$feats)
+
+opp_df <- rbind(opp_df_with_tense, opp_df_without_tense)
+
 # mood
 opp_df$mood <- '-'
 opp_df_with_mood <- opp_df[grepl('Mood', opp_df$feats) == TRUE,]
@@ -418,43 +427,6 @@ positive[positive$term == 'befürworten',]
 negative[negative$term == 'befürworten',]
 length(positive$term)
 
-# # devtools::install_github("sebastiansauer/pradadata")
-# library("pradadata")
-# data('germanlex')
-
-# das ist alles nur geklaut
-# read the data
-germanlex <- read_delim(file = "germanlex.txt",
-                        skip = 27,
-                        delim = " ",
-                        col_names = c("word", "qualifier", "pos"))
-
-# separate column
-germanlex %>%
-  separate(col = qualifier, into = c("qualifier", "polarity_strength"), sep = "=") -> germanlex
-
-# remove comment lines
-germanlex %>%
-  filter(word != "%%") -> germanlex
-
-# change to type numeric
-germanlex %>%
-  mutate(polarity_strength = parse_number(polarity_strength)) -> germanlex
-
-# so
-germanlex[germanlex$word == 'beenden',]$qualifier
-
-opp_df$qualifier <- '-'
-opp_df$polarity_strength <- '-'
-
-# with germanlex
-for (w in unique(opp_df$lemma)) {
-  if (w %in% germanlex$word) {
-    opp_df[opp_df$lemma == w,]$qualifier <- as.character(germanlex[germanlex$word == w,]$qualifier[1])
-    opp_df[opp_df$lemma == w,]$polarity_strength <- as.character(germanlex[germanlex$word == w,]$polarity_strength[1])
-  }
-}
-
 # the other dict
 opp_df$senti_ws <- '-'
 
@@ -473,9 +445,12 @@ for (w in unique(opp_df$lemma)) {
 opp_df$party <- as.character(lapply(opposition_list[opp_df$doc_id], function(elem) elem[[1]]))
 
 opp_df
-                                    
+
+# save to csv
+write.csv2(opp_df, 'opposition_stuff1_with_party.csv')
+
 # just terms
-just_terms <- opp_df[2:8]
+just_terms <- opp_df[2:6]
 
 counted_terms <- aggregate(cbind(just_terms[0],numdup=1), just_terms, length)
 
@@ -484,5 +459,4 @@ counted_terms <- counted_terms[order(counted_terms$numdup, decreasing = TRUE),]
 just_terms <- filter(counted_terms, numdup > 2)
 names(just_terms)[names(just_terms) == 'numdup'] <- 'freq'
 # write.csv2(just_terms, 'opposition_roots_counted.csv')
- ################################## ...regierung fehlt noch und schick machen auch.                             
-                                    
+               
