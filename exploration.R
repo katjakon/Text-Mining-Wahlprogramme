@@ -51,6 +51,30 @@ program_toks <- tokens(programs,remove_punct = TRUE) %>% tokens_remove(custom_st
 program_dfm <- dfm(program_toks)
 
 
+######################
+### Sentiment data ###
+######################
+
+# prepare sentiment data
+neg <- scan("SentiWS_v1.8c_Negative.txt", what = "char", sep = "\n", fileEncoding="utf-8")
+pos <- scan("SentiWS_v1.8c_Positive.txt", what = "char", sep = "\n", fileEncoding="utf-8")
+s <- str_split(neg, "\t")
+t <- str_split(pos, "\t")
+terms.neg <- sub("([A-Za-zß]+)[|][A-Za-z]+", "\\1",lapply(s, function(l) l[[1]]))
+terms.pos <- sub("([A-Za-zß]+)[|][A-Za-z]+", "\\1",lapply(t, function(l) l[[1]]))
+
+value.neg <- unlist(lapply(s, function(l) as.double(l[[2]])))
+value.pos <- unlist(lapply(t, function(l) as.double(l[[2]])))
+
+positive <- data.frame(term=terms.pos, value=value.pos)
+negative <- data.frame(term=terms.neg, value=value.neg)
+
+# add sentiment value
+positive[positive$term == 'befürworten',]
+negative[negative$term == 'befürworten',]
+
+senti_dict <- rbind(positive, negative)
+
 #######################
 ### Bag of words ######
 #######################
@@ -324,19 +348,24 @@ topfeatures(year_2013, n=20)
 year_2017 <- dfm_subset(tfidf, tfidf$"year"==2017)
 topfeatures(year_2017, n=20)
 
-#########################################################################
-# whatever this will be - GANZ UND GAR UNFERTIG!!!
-#########################################################################
+########################
+### root information ###
+########################
 
+# annotate alle that stuff (Warning: takes forever. like 30min)
 annotated_model <- udpipe_annotate(udmodel_german, x = programs) %>%
   as.data.frame()
 
+# partition of corpus
 regierung <- c('doc3', 'doc4', 'doc10', 'doc11', 'doc12', 'doc19', 'doc23', 'doc24', 'doc25', 'doc27')
 opposition <- c('doc1', 'doc2', 'doc5', 'doc6', 'doc7', 'doc8', 'doc9', 'doc13', 'doc14', 'doc15', 'doc16', 'doc17', 'doc18', 'doc20', 'doc21', 'doc22', 'doc26')
 
+# split into sub groups
 sub_model_regierung <- subset(annotated_model, doc_id %in% regierung)
-sub_model_opposotion <- subset(annotated_model, doc_id %in% opposition)
+sub_model_opposition <- subset(annotated_model, doc_id %in% opposition)
 
+# list of words a party could use to talk about themselves
+# first one is name of the party
 regierung_list <- list('doc3' = c('bündnis90/die grünen', 'wir'),
                        'doc4' = c('bündnis90/die grünen', 'wir'),
                        'doc10' = c('cdu', 'wir'),
@@ -355,108 +384,80 @@ opposition_list <- list('doc1' = c('afd', 'alternative', 'wir'),
                         'doc7' = c('bündnis90/die grünen', 'bündnis90', 'grüne', 'wir'),
                         'doc8' = c('cdu', 'wir'),
                         'doc9' = c('cdu', 'wir'),
-                        'doc13' = c('linke', 'wir'),
-                        'doc14' = c('linke', 'wir'),
-                        'doc15' = c('linke', 'wir'),
+                        'doc13' = c('die linke', 'linke', 'wir'),
+                        'doc14' = c('die linke', 'linke', 'wir'),
+                        'doc15' = c('die linke', 'linke', 'wir'),
                         'doc16' = c('fdp', 'wir'),
                         'doc17' = c('fdp', 'wir'),
                         'doc18' = c('fdp', 'wir'),
                         'doc20' = c('fdp', 'wir'),
                         'doc21' = c('pds', 'wir'),
                         'doc22' = c('linkspartei.pds', 'wir'),
-                        'doc26' = c('spd', 'wir'))
-
-
-# für die opposition
-wir_die_opposition <- subset(sub_model_opposotion, dep_rel == 'nsubj' & tolower(token) %in% unlist(opposition_list[doc_id]))
-
-sents_opp_wir_list <- wir_die_opposition$sentence
-
-wir_die_opposition_sents <- subset(sub_model_opposotion, sentence %in% sents_opp_wir_list)
-wir_die_opp_roots <- subset(wir_die_opposition_sents, dep_rel == 'root')
-
-opp_df <- wir_die_opp_roots[c(1, 6:7, 10)]
-
-# tense
-opp_df$tense <- '-'
-opp_df_with_tense <- opp_df[grepl('Tense', opp_df$feats) == TRUE,]
-opp_df_without_tense <- opp_df[grepl('Tense', opp_df$feats) == FALSE,]
-
-opp_df_with_tense$tense <- sub(".*(Tense=)([A-Za-z]+)[|]?.*", "\\2", opp_df_with_tense$feats)
-
-opp_df <- rbind(opp_df_with_tense, opp_df_without_tense)
-
-# mood
-opp_df$mood <- '-'
-opp_df_with_mood <- opp_df[grepl('Mood', opp_df$feats) == TRUE,]
-opp_df_without_mood <- opp_df[grepl('Mood', opp_df$feats) == FALSE,]
-
-opp_df_with_mood$mood <- sub(".*(Mood=)([A-Za-z]+)[|]?.*", "\\2", opp_df_with_mood$feats)
-
-opp_df <- rbind(opp_df_with_mood, opp_df_without_mood)
-
-# verbform
-opp_df$verbform <- '-'
-opp_df_with_verbform <- opp_df[grepl('VerbForm', opp_df$feats) == TRUE,]
-opp_df_without_verbform <- opp_df[grepl('VerbForm', opp_df$feats) == FALSE,]
-
-opp_df_with_verbform$verbform <- sub(".*(VerbForm=)([A-Za-z]+)[|]?.*", "\\2", opp_df_with_verbform$feats)
-
-opp_df <- rbind(opp_df_with_verbform, opp_df_without_verbform)
-
-# cut out feats
-opp_df <- opp_df[-c(2,4)]
-
-# sentiment
-# set up dicts
-neg <- scan("SentiWS_v1.8c_Negative.txt", what = "char", sep = "\n", fileEncoding="utf-8")
-pos <- scan("SentiWS_v1.8c_Positive.txt", what = "char", sep = "\n", fileEncoding="utf-8")
-s <- str_split(neg, "\t")
-t <- str_split(pos, "\t")
-terms.neg <- sub("([A-Za-zß]+)[|][A-Za-z]+", "\\1",lapply(s, function(l) l[[1]]))
-terms.pos <- sub("([A-Za-zß]+)[|][A-Za-z]+", "\\1",lapply(t, function(l) l[[1]]))
-
-value.neg <- unlist(lapply(s, function(l) as.double(l[[2]])))
-value.pos <- unlist(lapply(t, function(l) as.double(l[[2]])))
-
-positive <- data.frame(term=terms.pos, value=value.pos)
-negative <- data.frame(term=terms.neg, value=value.neg)
-
-# add sentiment value
-positive[positive$term == 'befürworten',]
-negative[negative$term == 'befürworten',]
-length(positive$term)
-
-# the other dict
-opp_df$senti_ws <- '-'
-
-for (w in unique(opp_df$lemma)) {
-
-  if (w %in% positive$term) {
-
-    opp_df[opp_df$lemma == w,]$senti_ws <- as.character(positive[positive$term == w,]$value)
-  }
-  if (w %in% negative$term) {
-    opp_df[opp_df$lemma == w,]$senti_ws <- as.character(negative[negative$term == w,]$value)
-  }
+                        'doc26' = c('spd', 'wir')) 
+                           
+# function to extract info from "feats"-column to separate column
+featsinfo_to_column <- function(data, name) {
+  data <- cbind(data, c('-'))
+  names(data)[length(names(data))] <-  tolower(name)
+  # separate data
+  data_part1 <- data[grepl(name, data$feats) == TRUE,]
+  data_part2 <- data[grepl(name, data$feats) == FALSE,]
+  # extract data
+  pattern <- paste0(".*(", name, "=)([A-Za-z]+)[|]?.*")
+  data_part1[,ncol(data)] <- sub(pattern, "\\2",
+                                 data_part1$feats)
+  modified_data <- rbind(data_part1, data_part2)
+  return(modified_data)
 }
 
-# party
-opp_df$party <- as.character(lapply(opposition_list[opp_df$doc_id], function(elem) elem[[1]]))
+# function for collecting root information
+# input: 
+# annotated_data - (subset of) corpus, annotated with udpipe
+# translation_list - list with doc_id and corresponding terms which the document author could use
+# to refer to themselves
+# senti_data - a dataframe with two columns: term (filled with the terms...)
+# and value (their corresponding sentiment score
+roots_for_group <- function(annotated_data, translation_list, senti_data) {
+  # extract roots
+  roots <- annotated_data %>%
+    subset(sentence %in% subset(., dep_rel == 'nsubj' & tolower(token) %in% unlist(translation_list[doc_id]))$sentence) %>%
+    subset(dep_rel == 'root')
+  
+  # extract relevant information from "feats" column
+  roots <- roots[c(1, 6:7, 10)] %>%
+    featsinfo_to_column('Tense') %>%
+    featsinfo_to_column('Mood') %>%
+    featsinfo_to_column('VerbForm')
 
-opp_df
+  roots <- roots[-c(2,4)]  # cut out feats and token
+  
+  roots$senti_ws <- '-'  # add sentiment column
+  for (w in unique(roots$lemma)) {
+    if (w %in% senti_data$term) {
+      if (length(senti_data[senti_data$term == w,]$value) < 2) {
+        roots[roots$lemma == w,]$senti_ws <- senti_data[senti_data$term == w,]$value
+      }
+    }
+  }
+  
+  # party
+  roots$party <- as.character(lapply(translation_list[roots$doc_id], function(elem) elem[[1]]))
+  roots <- roots[2:6]
+  
+  roots <- aggregate(cbind(roots[0],numdup=1), roots, length)
+  roots <- roots[order(roots$numdup, decreasing = TRUE),] %>%
+    filter(numdup > 2)
+  names(roots)[names(roots) == 'numdup'] <- 'freq'
+  
+  return(roots)
+}
 
-# save to csv
-write.csv2(opp_df, 'opposition_stuff1_with_party.csv')
-
-# just terms
-just_terms <- opp_df[2:6]
-
-counted_terms <- aggregate(cbind(just_terms[0],numdup=1), just_terms, length)
-
-counted_terms <- counted_terms[order(counted_terms$numdup, decreasing = TRUE),]
-
-just_terms <- filter(counted_terms, numdup > 2)
-names(just_terms)[names(just_terms) == 'numdup'] <- 'freq'
-# write.csv2(just_terms, 'opposition_roots_counted.csv')
-               
+# use function on opposition subset of annotated model
+opp_roots <- roots_for_group(sub_model_opposition, opposition_list, senti_dict)
+                                 
+# use function on government subset of annotated model
+gov_roots <- roots_for_group(sub_model_regierung, regierung_list, senti_dict)
+                                     
+# optional: save to csv                                
+write.csv2(opp_roots, 'opp_roots_info.csv')
+write.csv2(gov_roots, 'gov_roots_info.csv')
