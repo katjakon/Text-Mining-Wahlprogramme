@@ -28,7 +28,7 @@ lemmatize <- function(readtext_obj, model_udpipe) {
 model_deutsch <- udpipe_load_model(file="german-gsd-ud-2.5-191206.udpipe")
 
 # Add custom stopwords
-custom_stops <- c(stopwords("german"), c(""," ", "|","dass", "dabei", "dafür", "sowie", "daher"))
+custom_stops <- c(stopwords("german"), c(""," ", "|","dass", "dabei", "dafÃ¼r", "sowie", "daher"))
 
 # Working directory needs to be set to same directory as corpus directory for this to work!
 # Read in files, set document level variables.
@@ -45,10 +45,51 @@ programs <- lemmatize(programs_texts, model_deutsch) %>% corpus()
 docvars(programs, field="year") <- as.integer(docvars(programs, field="year"))
 
 # Create tokens object for whole corpus. filter out stopwords.
-program_toks <- tokens(programs,remove_punct = TRUE) %>% tokens_remove(custom_stops, padding = TRUE ) %>% tokens_remove(c("", "|"))
+program_toks <- tokens(programs,remove_punct = TRUE) %>% tokens_remove(custom_stops, padding = FALSE ) %>% tokens_remove(c("", "|"))
 
 # Create dfm for corpus
 program_dfm <- dfm(program_toks)
+
+textstat_frequency(program_dfm, groups="party")
+
+#######################
+###### Keyness ########
+#######################
+textstat_simil(program_dfm,margin="documents", method = "cosine")
+
+#######################
+###### Keyness ########
+#######################
+
+party.dfm <- dfm(program_dfm, groups = "party")
+
+# AfD keyness
+keyness.afd <- textstat_keyness(party.dfm, target = "AfD")
+textplot_keyness(keyness.afd)
+
+## SPD keyness
+keyness.spd <- textstat_keyness(party.dfm, target = "SPD")
+textplot_keyness(keyness.spd)
+
+## CDU keyness
+keyness.cdu <- textstat_keyness(party.dfm, target = "CDU")
+textplot_keyness(keyness.cdu)
+
+## Gruene keyness
+keyness.gruene <- textstat_keyness(party.dfm, target = "B90dieGruene")
+textplot_keyness(keyness.gruene)
+
+## Linke keynes
+keyness.linke <- textstat_keyness(party.dfm, target = "DIELINKE")
+textplot_keyness(keyness.linke)
+
+## FDP keyness
+keyness.fdp <- textstat_keyness(party.dfm, target = "FDP")
+textplot_keyness(keyness.fdp)
+
+## PDS keyness
+keyness.pds <- textstat_keyness(party.dfm, target = "PDS")
+textplot_keyness(keyness.pds)
 
 
 #######################
@@ -191,7 +232,7 @@ textplot_wordcloud(deutsch, max_words = 100)
 climate_dict <- c( "klimawandel", 
                    "treibhaus*", 
                    "CO2", 
-                   "erderwärmung", 
+                   "erderw?rmung", 
                    phrase("erneuerbare energien"),
                    "2-Grad-Ziel",
                    "zwei-grad-ziel",
@@ -200,33 +241,35 @@ climate_dict <- c( "klimawandel",
                    "klimaschutz",
                    "abholzung",
                    phrase("fossile energie*"),
-                   "atmosphäre",
+                   "atmosphÃ¤re",
                    "kohlenstoffdioxid",
                    "emission*")
 
 klima.dfm <- dfm(program_dfm, select = climate_dict) %>% dfm(groups = "party")
-klima.df <- convert(klima.dfm, to = "data.frame")
-climate_col <- colnames(klima.df)[2:length(colnames(klima.df))]
-climate_terms <- data.frame(climate_col)
 
-for (n in 1:nrow(klima.df)){
-  curr.party <- klima.df[n,1]
-  curr.dfm <- dfm_subset(klima.dfm, party == curr.party)
-  curr.df <- convert(curr.dfm, to = "data.frame")
-  climate_terms[curr.party] = as.numeric(curr.df[1,2:length(curr.df)])
-}
-klima.all <- dfm(klima.dfm, groups = "type")
-climate_terms["insgesamt"] <- as.numeric(convert(klima.all, to = "data.frame")[1,2:length(klima.df)])
-
-ggplot(climate_terms, aes(fill =c("AfD", "B90dieGruene" ,"CDU", "DIELINKE","FDP","PDS","SPD"), y=insgesamt, x=climate_col)) + 
-  geom_bar(position="stack", stat="identity")+
-  ggtitle("Anzahl der Klimabegriffe über Jahre")+
-  xlab("Jahre")+
-  ylab("Begriffe")+
+ggplot(textstat_frequency(klima.dfm, groups="party")) + 
+  geom_bar(aes(fill=group, y=frequency, x=feature),position="stack", stat="identity")+
+  ggtitle("HÃ¤ufigkeit der Klimabegriffe")+
   theme_minimal()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 
+klima.year <- dfm(program_dfm, select = climate_dict, groups = "year")
+p <- textstat_frequency(dfm(program_dfm, select = climate_dict), groups=c("party", "year"))
+
+
+p$party <- lapply(strsplit(p$group, "[.]"), function(l) l[[1]])
+p$year <- lapply(strsplit(p$group, "[.]"), function(l) l[[2]])
+p$year <- as.integer(p$year)
+p$party <- as.character(p$party)
+
+ggplot(p) + 
+  geom_bar(aes(y=p$frequency, x=p$year, fill = party),position="stack", stat="identity")+
+  ggtitle("H?ufigkeit der Klimabegriffe")+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+klima.dfm <- dfm(program_dfm, select = climate_dict)
 years <- klima.dfm$year
 Parteien <- klima.dfm$party
 Parteien
@@ -238,10 +281,10 @@ for (n in 1:nrow(my.data)){
   sum_begriffe <- c(sum_begriffe, s)
 }
 my.data$nterms <- sum_begriffe
-
+my.data
 ggplot(my.data, aes(fill=Parteien, y=nterms, x=years)) + 
   geom_bar(position="stack", stat="identity")+
-  ggtitle("Anzahl der Klimabegriffe über Jahre")+
+  ggtitle("Anzahl der Klimabegriffe ?ber Jahre")+
   xlab("Jahre")+
   ylab("Begriffe")+
   theme_minimal()
