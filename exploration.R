@@ -92,6 +92,30 @@ keyness.pds <- textstat_keyness(party.dfm, target = "PDS")
 textplot_keyness(keyness.pds)
 
 
+######################
+### Sentiment data ###
+######################
+
+# prepare sentiment data
+neg <- scan("SentiWS_v1.8c_Negative.txt", what = "char", sep = "\n", fileEncoding="utf-8")
+pos <- scan("SentiWS_v1.8c_Positive.txt", what = "char", sep = "\n", fileEncoding="utf-8")
+s <- str_split(neg, "\t")
+t <- str_split(pos, "\t")
+terms.neg <- sub("([A-Za-zß]+)[|][A-Za-z]+", "\\1",lapply(s, function(l) l[[1]]))
+terms.pos <- sub("([A-Za-zß]+)[|][A-Za-z]+", "\\1",lapply(t, function(l) l[[1]]))
+
+value.neg <- unlist(lapply(s, function(l) as.double(l[[2]])))
+value.pos <- unlist(lapply(t, function(l) as.double(l[[2]])))
+
+positive <- data.frame(term=terms.pos, value=value.pos)
+negative <- data.frame(term=terms.neg, value=value.neg)
+
+# add sentiment value
+positive[positive$term == 'befürworten',]
+negative[negative$term == 'befürworten',]
+
+senti_dict <- rbind(positive, negative)
+
 #######################
 ### Bag of words ######
 #######################
@@ -180,7 +204,7 @@ terms(program_lda_k10)
 dielinke_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "DIELINKE"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
 terms(dielinke_lda_k20)
 
-# topics from B90/Die Grüne programs
+# topics from B90/Die GrÃ¼ne programs
 gruene_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "B90dieGruene"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
 terms(gruene_lda_k20)
 
@@ -232,7 +256,11 @@ textplot_wordcloud(deutsch, max_words = 100)
 climate_dict <- c( "klimawandel", 
                    "treibhaus*", 
                    "CO2", 
+<<<<<<< HEAD
                    "erderw?rmung", 
+=======
+                   "erderwärmung", 
+>>>>>>> 426548c1c27249bce82299505d49ed7c5a75bd36
                    phrase("erneuerbare energien"),
                    "2-Grad-Ziel",
                    "zwei-grad-ziel",
@@ -247,9 +275,17 @@ climate_dict <- c( "klimawandel",
 
 klima.dfm <- dfm(program_dfm, select = climate_dict) %>% dfm(groups = "party")
 
+<<<<<<< HEAD
 ggplot(textstat_frequency(klima.dfm, groups="party")) + 
   geom_bar(aes(fill=group, y=frequency, x=feature),position="stack", stat="identity")+
   ggtitle("Häufigkeit der Klimabegriffe")+
+=======
+ggplot(climate_terms, aes(fill =c("AfD", "B90dieGruene" ,"CDU", "DIELINKE","FDP","PDS","SPD"), y=insgesamt, x=climate_col)) + 
+  geom_bar(position="stack", stat="identity")+
+  ggtitle("Anzahl der Klimabegriffe über Jahre")+
+  xlab("Jahre")+
+  ylab("Begriffe")+
+>>>>>>> 426548c1c27249bce82299505d49ed7c5a75bd36
   theme_minimal()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
@@ -284,7 +320,11 @@ my.data$nterms <- sum_begriffe
 my.data
 ggplot(my.data, aes(fill=Parteien, y=nterms, x=years)) + 
   geom_bar(position="stack", stat="identity")+
-  ggtitle("Anzahl der Klimabegriffe ?ber Jahre")+
+<<<<<<< HEAD
+  ggtitle("Anzahl der Klimabegriffe über Jahre")+
+=======
+  ggtitle("Anzahl der Klimabegriffe über Jahre")+
+>>>>>>> 426548c1c27249bce82299505d49ed7c5a75bd36
   xlab("Jahre")+
   ylab("Begriffe")+
   theme_minimal()
@@ -366,3 +406,114 @@ topfeatures(year_2013, n=20)
 
 year_2017 <- dfm_subset(tfidf, tfidf$"year"==2017)
 topfeatures(year_2017, n=20)
+
+########################
+### root information ###
+########################
+
+# annotate alle that stuff (Warning: takes forever. like 30min)
+annotated_model <- udpipe_annotate(udmodel_german, x = programs) %>%
+  as.data.frame()
+
+# partition of corpus
+regierung <- c('doc3', 'doc4', 'doc10', 'doc11', 'doc12', 'doc19', 'doc23', 'doc24', 'doc25', 'doc27')
+opposition <- c('doc1', 'doc2', 'doc5', 'doc6', 'doc7', 'doc8', 'doc9', 'doc13', 'doc14', 'doc15', 'doc16', 'doc17', 'doc18', 'doc20', 'doc21', 'doc22', 'doc26')
+
+# split into sub groups
+sub_model_regierung <- subset(annotated_model, doc_id %in% regierung)
+sub_model_opposition <- subset(annotated_model, doc_id %in% opposition)
+
+# list of words a party could use to talk about themselves
+# first one is name of the party
+regierung_list <- list('doc3' = c('bündnis90/die grünen', 'wir'),
+                       'doc4' = c('bündnis90/die grünen', 'wir'),
+                       'doc10' = c('cdu', 'wir'),
+                       'doc11' = c('cdu', 'wir'),
+                       'doc12' = c('cdu', 'wir'),
+                       'doc19' = c('fdp', 'wir'),
+                       'doc23' = c('spd', 'wir'),
+                       'doc24' = c('spd', 'wir'),
+                       'doc25' = c('spd', 'wir'),
+                       'doc27' = c('spd', 'wir'))
+
+opposition_list <- list('doc1' = c('afd', 'alternative', 'wir'),
+                        'doc2' = c('afd', 'alternative', 'wir'),
+                        'doc5' = c('bündnis90/die grünen', 'bündnis90', 'grüne', 'wir'),
+                        'doc6' = c('bündnis90/die grünen', 'bündnis90', 'grüne', 'wir'),
+                        'doc7' = c('bündnis90/die grünen', 'bündnis90', 'grüne', 'wir'),
+                        'doc8' = c('cdu', 'wir'),
+                        'doc9' = c('cdu', 'wir'),
+                        'doc13' = c('die linke', 'linke', 'wir'),
+                        'doc14' = c('die linke', 'linke', 'wir'),
+                        'doc15' = c('die linke', 'linke', 'wir'),
+                        'doc16' = c('fdp', 'wir'),
+                        'doc17' = c('fdp', 'wir'),
+                        'doc18' = c('fdp', 'wir'),
+                        'doc20' = c('fdp', 'wir'),
+                        'doc21' = c('pds', 'wir'),
+                        'doc22' = c('linkspartei.pds', 'wir'),
+                        'doc26' = c('spd', 'wir')) 
+                           
+# function to extract info from "feats"-column to separate column
+featsinfo_to_column <- function(data, name) {
+  data <- cbind(data, c('-'))
+  names(data)[length(names(data))] <-  tolower(name)
+  # separate data
+  data_part1 <- data[grepl(name, data$feats) == TRUE,]
+  data_part2 <- data[grepl(name, data$feats) == FALSE,]
+  # extract data
+  pattern <- paste0(".*(", name, "=)([A-Za-z]+)[|]?.*")
+  data_part1[,ncol(data)] <- sub(pattern, "\\2",
+                                 data_part1$feats)
+  modified_data <- rbind(data_part1, data_part2)
+  return(modified_data)
+}
+
+# function for collecting root information
+# input: 
+# annotated_data - (subset of) corpus, annotated with udpipe
+# translation_list - list with doc_id and corresponding terms which the document author could use
+# to refer to themselves
+# senti_data - a dataframe with two columns: term (filled with the terms...)
+# and value (their corresponding sentiment score
+roots_for_group <- function(annotated_data, translation_list, senti_data) {
+  # extract roots
+  roots <- annotated_data %>%
+    subset(sentence %in% subset(., dep_rel == 'nsubj' & tolower(token) %in% unlist(translation_list[doc_id]))$sentence) %>%
+    subset(dep_rel == 'root')
+  
+  # extract relevant information from "feats" column
+  roots <- roots[c(1, 6:7, 10)] %>%
+    featsinfo_to_column('Tense') %>%
+    featsinfo_to_column('Mood') %>%
+    featsinfo_to_column('VerbForm')
+
+  roots <- roots[-c(2,4)]  # cut out feats and token
+  
+  roots$senti_ws <- '-'  # add sentiment column
+  for (w in unique(roots$lemma)) {
+    if (w %in% senti_data$term) {
+      if (length(senti_data[senti_data$term == w,]$value) < 2) {
+        roots[roots$lemma == w,]$senti_ws <- senti_data[senti_data$term == w,]$value
+      }
+    }
+  }
+  roots <- roots[2:6]
+  
+  roots <- aggregate(cbind(roots[0],numdup=1), roots, length)
+  roots <- roots[order(roots$numdup, decreasing = TRUE),] %>%
+    filter(numdup > 2)
+  names(roots)[names(roots) == 'numdup'] <- 'freq'
+  
+  return(roots)
+}
+
+# use function on opposition subset of annotated model
+opp_roots <- roots_for_group(sub_model_opposition, opposition_list, senti_dict)
+                                 
+# use function on government subset of annotated model
+gov_roots <- roots_for_group(sub_model_regierung, regierung_list, senti_dict)
+                                     
+# optional: save to csv                                
+write.csv2(opp_roots, 'opp_roots_info.csv')
+write.csv2(gov_roots, 'gov_roots_info.csv')
