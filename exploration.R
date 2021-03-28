@@ -540,7 +540,7 @@ collect_sentiment_for_cat <- function(annotated_data, category, value, senti_dat
   senti_df <- senti_df[order(senti_df$numdup, decreasing = TRUE),] %>%
     filter(numdup > 1)
   names(senti_df)[names(senti_df) == 'numdup'] <- 'freq'
-  return(senti_df)
+  return(senti_df[-2])
 }
 
 opp_nouns <- collect_sentiment_for_upos(sub_model_opposition, "upos", 'NOUN', senti_dict)
