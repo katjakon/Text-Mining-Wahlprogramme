@@ -256,11 +256,7 @@ textplot_wordcloud(deutsch, max_words = 100)
 climate_dict <- c( "klimawandel", 
                    "treibhaus*", 
                    "CO2", 
-<<<<<<< HEAD
-                   "erderw?rmung", 
-=======
                    "erderwärmung", 
->>>>>>> 426548c1c27249bce82299505d49ed7c5a75bd36
                    phrase("erneuerbare energien"),
                    "2-Grad-Ziel",
                    "zwei-grad-ziel",
@@ -275,17 +271,16 @@ climate_dict <- c( "klimawandel",
 
 klima.dfm <- dfm(program_dfm, select = climate_dict) %>% dfm(groups = "party")
 
-<<<<<<< HEAD
+
 ggplot(textstat_frequency(klima.dfm, groups="party")) + 
   geom_bar(aes(fill=group, y=frequency, x=feature),position="stack", stat="identity")+
   ggtitle("Häufigkeit der Klimabegriffe")+
-=======
+
 ggplot(climate_terms, aes(fill =c("AfD", "B90dieGruene" ,"CDU", "DIELINKE","FDP","PDS","SPD"), y=insgesamt, x=climate_col)) + 
   geom_bar(position="stack", stat="identity")+
   ggtitle("Anzahl der Klimabegriffe über Jahre")+
   xlab("Jahre")+
   ylab("Begriffe")+
->>>>>>> 426548c1c27249bce82299505d49ed7c5a75bd36
   theme_minimal()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
@@ -320,11 +315,7 @@ my.data$nterms <- sum_begriffe
 my.data
 ggplot(my.data, aes(fill=Parteien, y=nterms, x=years)) + 
   geom_bar(position="stack", stat="identity")+
-<<<<<<< HEAD
   ggtitle("Anzahl der Klimabegriffe über Jahre")+
-=======
-  ggtitle("Anzahl der Klimabegriffe über Jahre")+
->>>>>>> 426548c1c27249bce82299505d49ed7c5a75bd36
   xlab("Jahre")+
   ylab("Begriffe")+
   theme_minimal()
