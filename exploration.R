@@ -516,12 +516,14 @@ write.csv2(gov_roots, 'gov_roots_info.csv')
 # function to collect sentiment for category
 # input: 
 # annotated_data - (subset of) corpus, annotated with udpipe
-# categoray
+# category...
+# value...
 # senti_data - a dataframe with two columns: term (filled with the terms...)
 # and value (their corresponding sentiment score
-collect_sentiment_for_cat <- function(annotated_data, category, senti_data) {
+collect_sentiment_for_cat <- function(annotated_data, category, value, senti_data) {
   # filter data
-  filtered_data <- subset(annotated_data, upos == category)
+  index <- grep(category, colnames(annotated_data))
+  filtered_data <- subset(annotated_data, annotated_data[,index] == value)
   filtered_data$senti_ws <- '-'
   senti_df <- filtered_data[c(7,8)]
   
@@ -540,10 +542,13 @@ collect_sentiment_for_cat <- function(annotated_data, category, senti_data) {
   names(senti_df)[names(senti_df) == 'numdup'] <- 'freq'
   return(senti_df)
 }
-                 
-opp_nouns <- collect_sentiment_for_cat(sub_model_opposition, 'NOUN', senti_dict)
-gov_nouns <- collect_sentiment_for_cat(sub_model_regierung, 'NOUN', senti_dict)
+
+opp_nouns <- collect_sentiment_for_upos(sub_model_opposition, "upos", 'NOUN', senti_dict)
+gov_nouns <- collect_sentiment_for_upos(sub_model_regierung, "upos", 'NOUN', senti_dict)
+opp_adv <- collect_sentiment_for_upos(sub_model_opposition, "upos", 'ADJ', senti_dict)
+gov_adv <- collect_sentiment_for_upos(sub_model_regierung, "upos", 'ADJ', senti_dict)
 
 head(opp_nouns)
-head(gov_nouns)           
-          
+head(gov_nouns)
+head(opp_adv)
+head(gov_adv)
