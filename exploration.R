@@ -543,10 +543,10 @@ collect_sentiment_for_cat <- function(annotated_data, category, value, senti_dat
   return(senti_df[-2])
 }
 
-opp_nouns <- collect_sentiment_for_upos(sub_model_opposition, "upos", 'NOUN', senti_dict)
-gov_nouns <- collect_sentiment_for_upos(sub_model_regierung, "upos", 'NOUN', senti_dict)
-opp_adv <- collect_sentiment_for_upos(sub_model_opposition, "upos", 'ADJ', senti_dict)
-gov_adv <- collect_sentiment_for_upos(sub_model_regierung, "upos", 'ADJ', senti_dict)
+opp_nouns <- collect_sentiment_for_cat(sub_model_opposition, "upos", 'NOUN', senti_dict)
+gov_nouns <- collect_sentiment_for_cat(sub_model_regierung, "upos", 'NOUN', senti_dict)
+opp_adv <- collect_sentiment_for_cat(sub_model_opposition, "upos", 'ADJ', senti_dict)
+gov_adv <- collect_sentiment_for_cat(sub_model_regierung, "upos", 'ADJ', senti_dict)
 
 head(opp_nouns)
 head(gov_nouns)
