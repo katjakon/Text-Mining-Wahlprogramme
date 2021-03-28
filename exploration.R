@@ -28,7 +28,7 @@ lemmatize <- function(readtext_obj, model_udpipe) {
 model_deutsch <- udpipe_load_model(file="german-gsd-ud-2.5-191206.udpipe")
 
 # Add custom stopwords
-custom_stops <- c(stopwords("german"), c(""," ", "|","dass", "dabei", "daf�r", "sowie", "daher"))
+custom_stops <- c(stopwords("german"), c(""," ", "|","dass", "dabei", "dafür", "sowie", "daher"))
 
 # Working directory needs to be set to same directory as corpus directory for this to work!
 # Read in files, set document level variables.
@@ -139,7 +139,7 @@ terms(program_lda_k10)
 dielinke_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "DIELINKE"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
 terms(dielinke_lda_k20)
 
-# topics from B90/Die Grüne programs
+# topics from B90/Die GrÃ¼ne programs
 gruene_lda_k20 <- textmodel_lda(dfm(programs[programs$party == "B90dieGruene"], remove_punct=TRUE, remove=(stopwords("german"))), k=20)
 terms(gruene_lda_k20)
 
@@ -191,7 +191,7 @@ textplot_wordcloud(deutsch, max_words = 100)
 climate_dict <- c( "klimawandel", 
                    "treibhaus*", 
                    "CO2", 
-                   "erderw�rmung", 
+                   "erderwärmung", 
                    phrase("erneuerbare energien"),
                    "2-Grad-Ziel",
                    "zwei-grad-ziel",
@@ -200,7 +200,7 @@ climate_dict <- c( "klimawandel",
                    "klimaschutz",
                    "abholzung",
                    phrase("fossile energie*"),
-                   "atmosph�re",
+                   "atmosphäre",
                    "kohlenstoffdioxid",
                    "emission*")
 
@@ -220,7 +220,7 @@ climate_terms["insgesamt"] <- as.numeric(convert(klima.all, to = "data.frame")[1
 
 ggplot(climate_terms, aes(fill =c("AfD", "B90dieGruene" ,"CDU", "DIELINKE","FDP","PDS","SPD"), y=insgesamt, x=climate_col)) + 
   geom_bar(position="stack", stat="identity")+
-  ggtitle("Anzahl der Klimabegriffe �ber Jahre")+
+  ggtitle("Anzahl der Klimabegriffe über Jahre")+
   xlab("Jahre")+
   ylab("Begriffe")+
   theme_minimal()+
@@ -241,7 +241,7 @@ my.data$nterms <- sum_begriffe
 
 ggplot(my.data, aes(fill=Parteien, y=nterms, x=years)) + 
   geom_bar(position="stack", stat="identity")+
-  ggtitle("Anzahl der Klimabegriffe �ber Jahre")+
+  ggtitle("Anzahl der Klimabegriffe über Jahre")+
   xlab("Jahre")+
   ylab("Begriffe")+
   theme_minimal()
@@ -323,3 +323,156 @@ topfeatures(year_2013, n=20)
 
 year_2017 <- dfm_subset(tfidf, tfidf$"year"==2017)
 topfeatures(year_2017, n=20)
+
+#########################################################################
+# whatever this will be - GANZ UND GAR UNFERTIG!!!
+#########################################################################
+
+annotated_model <- udpipe_annotate(udmodel_german, x = programs) %>%
+  as.data.frame()
+
+regierung <- c('doc3', 'doc4', 'doc10', 'doc11', 'doc12', 'doc19', 'doc23', 'doc24', 'doc25', 'doc27')
+opposition <- c('doc1', 'doc2', 'doc5', 'doc6', 'doc7', 'doc8', 'doc9', 'doc13', 'doc14', 'doc15', 'doc16', 'doc17', 'doc18', 'doc20', 'doc21', 'doc22', 'doc26')
+
+sub_model_regierung <- subset(annotated_model, doc_id %in% regierung)
+sub_model_opposotion <- subset(annotated_model, doc_id %in% opposition)
+
+regierung_list <- list('doc3' = c('bündnis90/die grünen', 'wir'),
+                       'doc4' = c('bündnis90/die grünen', 'wir'),
+                       'doc10' = c('cdu', 'wir'),
+                       'doc11' = c('cdu', 'wir'),
+                       'doc12' = c('cdu', 'wir'),
+                       'doc19' = c('fdp', 'wir'),
+                       'doc23' = c('spd', 'wir'),
+                       'doc24' = c('spd', 'wir'),
+                       'doc25' = c('spd', 'wir'),
+                       'doc27' = c('spd', 'wir'))
+
+opposition_list <- list('doc1' = c('afd', 'alternative', 'wir'),
+                        'doc2' = c('afd', 'alternative', 'wir'),
+                        'doc5' = c('bündnis90/die grünen', 'bündnis90', 'grüne', 'wir'),
+                        'doc6' = c('bündnis90/die grünen', 'bündnis90', 'grüne', 'wir'),
+                        'doc7' = c('bündnis90/die grünen', 'bündnis90', 'grüne', 'wir'),
+                        'doc8' = c('cdu', 'wir'),
+                        'doc9' = c('cdu', 'wir'),
+                        'doc13' = c('linke', 'wir'),
+                        'doc14' = c('linke', 'wir'),
+                        'doc15' = c('linke', 'wir'),
+                        'doc16' = c('fdp', 'wir'),
+                        'doc17' = c('fdp', 'wir'),
+                        'doc18' = c('fdp', 'wir'),
+                        'doc20' = c('fdp', 'wir'),
+                        'doc21' = c('pds', 'wir'),
+                        'doc22' = c('linkspartei.pds', 'wir'),
+                        'doc26' = c('spd', 'wir'))
+
+
+# für die opposition
+wir_die_opposition <- subset(sub_model_opposotion, dep_rel == 'nsubj' & tolower(token) %in% unlist(opposition_list[doc_id]))
+
+sents_opp_wir_list <- wir_die_opposition$sentence
+
+wir_die_opposition_sents <- subset(sub_model_opposotion, sentence %in% sents_opp_wir_list)
+wir_die_opp_roots <- subset(wir_die_opposition_sents, dep_rel == 'root')
+
+opp_df <- wir_die_opp_roots[c(1, 6:7, 10)]
+
+# mood
+opp_df$mood <- '-'
+opp_df_with_mood <- opp_df[grepl('Mood', opp_df$feats) == TRUE,]
+opp_df_without_mood <- opp_df[grepl('Mood', opp_df$feats) == FALSE,]
+
+opp_df_with_mood$mood <- sub(".*(Mood=)([A-Za-z]+)[|]?.*", "\\2", opp_df_with_mood$feats)
+
+opp_df <- rbind(opp_df_with_mood, opp_df_without_mood)
+
+# verbform
+opp_df$verbform <- '-'
+opp_df_with_verbform <- opp_df[grepl('VerbForm', opp_df$feats) == TRUE,]
+opp_df_without_verbform <- opp_df[grepl('VerbForm', opp_df$feats) == FALSE,]
+
+opp_df_with_verbform$verbform <- sub(".*(VerbForm=)([A-Za-z]+)[|]?.*", "\\2", opp_df_with_verbform$feats)
+
+opp_df <- rbind(opp_df_with_verbform, opp_df_without_verbform)
+
+# cut out feats
+opp_df <- opp_df[-c(2,4)]
+
+# sentiment
+# set up dicts
+neg <- scan("SentiWS_v1.8c_Negative.txt", what = "char", sep = "\n", fileEncoding="utf-8")
+pos <- scan("SentiWS_v1.8c_Positive.txt", what = "char", sep = "\n", fileEncoding="utf-8")
+s <- str_split(neg, "\t")
+t <- str_split(pos, "\t")
+terms.neg <- sub("([A-Za-zß]+)[|][A-Za-z]+", "\\1",lapply(s, function(l) l[[1]]))
+terms.pos <- sub("([A-Za-zß]+)[|][A-Za-z]+", "\\1",lapply(t, function(l) l[[1]]))
+
+value.neg <- unlist(lapply(s, function(l) as.double(l[[2]])))
+value.pos <- unlist(lapply(t, function(l) as.double(l[[2]])))
+
+positive <- data.frame(term=terms.pos, value=value.pos)
+negative <- data.frame(term=terms.neg, value=value.neg)
+
+# add sentiment value
+positive[positive$term == 'befürworten',]
+negative[negative$term == 'befürworten',]
+length(positive$term)
+
+# # devtools::install_github("sebastiansauer/pradadata")
+# library("pradadata")
+# data('germanlex')
+
+# das ist alles nur geklaut
+# read the data
+germanlex <- read_delim(file = "germanlex.txt",
+                        skip = 27,
+                        delim = " ",
+                        col_names = c("word", "qualifier", "pos"))
+
+# separate column
+germanlex %>%
+  separate(col = qualifier, into = c("qualifier", "polarity_strength"), sep = "=") -> germanlex
+
+# remove comment lines
+germanlex %>%
+  filter(word != "%%") -> germanlex
+
+# change to type numeric
+germanlex %>%
+  mutate(polarity_strength = parse_number(polarity_strength)) -> germanlex
+
+# so
+germanlex[germanlex$word == 'beenden',]$qualifier
+
+opp_df$qualifier <- '-'
+opp_df$polarity_strength <- '-'
+
+# with germanlex
+for (w in unique(opp_df$lemma)) {
+  if (w %in% germanlex$word) {
+    opp_df[opp_df$lemma == w,]$qualifier <- as.character(germanlex[germanlex$word == w,]$qualifier[1])
+    opp_df[opp_df$lemma == w,]$polarity_strength <- as.character(germanlex[germanlex$word == w,]$polarity_strength[1])
+  }
+}
+
+# the other dict
+opp_df$senti_ws <- '-'
+
+for (w in unique(opp_df$lemma)) {
+
+  if (w %in% positive$term) {
+
+    opp_df[opp_df$lemma == w,]$senti_ws <- as.character(positive[positive$term == w,]$value)
+  }
+  if (w %in% negative$term) {
+    opp_df[opp_df$lemma == w,]$senti_ws <- as.character(negative[negative$term == w,]$value)
+  }
+}
+
+# party
+opp_df$party <- as.character(lapply(opposition_list[opp_df$doc_id], function(elem) elem[[1]]))
+
+opp_df
+
+ ################################## ...regierung fehlt noch und schick machen auch.                             
+                                    
