@@ -439,9 +439,6 @@ roots_for_group <- function(annotated_data, translation_list, senti_data) {
       }
     }
   }
-  
-  # party
-  roots$party <- as.character(lapply(translation_list[roots$doc_id], function(elem) elem[[1]]))
   roots <- roots[2:6]
   
   roots <- aggregate(cbind(roots[0],numdup=1), roots, length)
