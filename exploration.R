@@ -473,6 +473,16 @@ for (w in unique(opp_df$lemma)) {
 opp_df$party <- as.character(lapply(opposition_list[opp_df$doc_id], function(elem) elem[[1]]))
 
 opp_df
+                                    
+# just terms
+just_terms <- opp_df[2:8]
 
+counted_terms <- aggregate(cbind(just_terms[0],numdup=1), just_terms, length)
+
+counted_terms <- counted_terms[order(counted_terms$numdup, decreasing = TRUE),]
+
+just_terms <- filter(counted_terms, numdup > 2)
+names(just_terms)[names(just_terms) == 'numdup'] <- 'freq'
+# write.csv2(just_terms, 'opposition_roots_counted.csv')
  ################################## ...regierung fehlt noch und schick machen auch.                             
                                     
