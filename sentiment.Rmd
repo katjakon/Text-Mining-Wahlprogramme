@@ -1,0 +1,11 @@
+---
+title: "Sentiment in Wahlprogrammen"
+author: "Anina Klaus, Katja Konermann und Niklas Stepczynski"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Explanation for Sentiment 
