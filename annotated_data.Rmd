@@ -1,11 +1,8 @@
 ---
-title: "Politik_pruef"
-author: "Anina Klaus"
-date: "28 3 2021"
+title: "Untersuchungen mit dem annotierten Korpus"
+author: "Anina Klaus, Katja Konermann und Niklas Stepczynski"
 output: html_document
 ---
-
-# Allg Überschrift
 
 ```{r setup, message=FALSE, warning=FALSE}
 library(quanteda)
@@ -42,8 +39,8 @@ Für die Sentimentanalyse verwenden wir das SentiWS-Wörterbuch. Es wird als _da
 
 ```{r sentiment}
 # prepare sentiment dicts
-neg <- scan("SentiWS_v1.8c_Negative.txt", what = "char", sep = "\n", fileEncoding="utf-8")
-pos <- scan("SentiWS_v1.8c_Positive.txt", what = "char", sep = "\n", fileEncoding="utf-8")
+neg <- scan("data/SentiWS_v1.8c_Negative.txt", what = "char", sep = "\n", fileEncoding="utf-8")
+pos <- scan("data/SentiWS_v1.8c_Positive.txt", what = "char", sep = "\n", fileEncoding="utf-8")
 s <- str_split(neg, "\t")
 t <- str_split(pos, "\t")
 terms.neg <- sub("([A-Za-zß]+)[|][A-Za-z]+", "\\1",lapply(s, function(l) l[[1]]))
@@ -64,7 +61,7 @@ senti_dict <- rbind(positive, negative)
 Außerdem muss der annotierte Korpus geladen werden.
 
 ```{r annotate}
-load("annotated_corpus.RData")
+load("RData/annotated_corpus.RData")
 head(annotated_model)[c(1:3,5:13)]
 ```
 
