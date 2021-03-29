@@ -1,0 +1,256 @@
+---
+title: "Vokabular in Wahlprogrammen"
+author: "Anina Klaus, Katja Konermann und Niklas Stepczynski"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Vorverarbeitung
+
+Für die Verarbeitung der Wahlprogramme werden die Bibliotheken _readtext_ und _quanteda_ benötigt. Zudem wird die Biliothek _udpipe_ benutzt, um das Korpus zu lemmatisieren. Die dazugehörige Funktion ist in der Datei _functions/lemmatize.R_ gespeichert. <br>
+
+
+```{r preprocessing, message=FALSE, warning=FALSE}
+library(quanteda)
+library(readtext)
+library(tidyverse)
+library(udpipe)
+
+source("functions/lemmatize.R")
+```
+
+Weil die Lemmatisierung einige Zeit braucht, ist die lemmatisierte Version des Korpus schon unter _RData/lemmatized_corpus.RData_ abgespeichert. Zudem werden Stoppwörter geladen, die auf den _quanteda_ eigenen Stoppwörtern aufbauen, aber noch einige zusätzliche enthalten.
+
+```{r load_lemmatized}
+# Load lemmatized corpus
+load("RData/lemmatized_corpus.RData")
+# Load custom stopwords
+load("RData/custom_stopwords.RData")
+
+#show custom stops
+custom_stops
+```
+
+Die Stoppwörter werden dann aus den Wahlprogrammen herausgefiltert. Danach kann eine Document-Feature-Matrix erstellt werden.
+```{r dfm}
+# Convert characters in year column to integers
+docvars(programs, field="year") <- as.integer(docvars(programs, field="year"))
+
+# Create tokens object for whole corpus, filter out stopwords.
+program_toks <- tokens(programs,remove_punct = TRUE) %>% tokens_remove(custom_stops)
+
+# Create dfm for corpus
+program_dfm <- dfm(program_toks)
+```
+
+## Vergleich der häufigsten Terme zwischen den Parteien
+Die folgenden 30 Terme treten insgesamt am häufigsten in den Wahlprogrammen zur Bundestagswahl auf. Eine Liste mit den 100 häufigsten Termen kann unter _data/bag_of_words.csv_ abgerufen werden.
+```{r top30, echo = FALSE}
+head(textstat_frequency(dfm(program_dfm, groups="party")), 30)
+```
+
+Um zu vergleichen, wie sich die relative Häufigkeit dieser Terme zwischen den Parteien unterscheidet, wird ein _data frame_ erstellt, indem die relative Häufigkeit eines Terms für jede Partei gespeichert ist. Zur Berechnung der relativen Häufigkeit wird die Frequenz eines Terms durch die Summe aller Terme einer Partei dividiert. Die Frequenz wird also relativ zur Länge eines Wahlprogramms normalisiert.
+
+```{r normalize:freq}
+top.30 <- head(textstat_frequency(dfm(program_dfm, groups="party")), 30)
+parties <- c("AfD", "CDU", "SPD", "PDS", "FDP", "DIELINKE", "B90dieGruene")
+
+# Intialize data frame
+terms.ranked <- data.frame(matrix(ncol = 3, nrow = 0))
+colnames(terms.ranked) <- c("feature", "party", "relative")
+
+# Iterate over parties and get relative frequency for each term.
+for (i in 1:length(parties)){
+  # Get programs for each party.
+  stat.party <- dfm_subset(program_dfm, party == parties[i]) %>%
+    textstat_frequency()
+  # Get full term frequency for each party.
+  sum.freq <- sum(stat.party$frequency)
+  # Only keep top 30 terms.
+  stat.party.filtered <- filter(stat.party, feature %in% top.30$feature)
+  tmp.data <- data.frame(feature=stat.party.filtered$feature,
+                         party=parties[i],
+                         relativ=stat.party.filtered$frequency/sum.freq)
+  terms.ranked <- rbind(terms.ranked, tmp.data)
+}
+```
+
+In einer Heatmap werden diese Häufigkeiten dann zwischen den Parteien verglichen. Niedrige relative Häufigkeiten sind dabei blau, hohe dagegen rot.
+
+
+```{r heat, echo=FALSE}
+# Plot Heatmap for top 30 terms.
+ggplot(terms.ranked, aes(y=feature, x=party)) + 
+  geom_tile(aes(fill = relativ)) + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  ggtitle("Relative Häufigkeit der 30 frequentesten Terme")+
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0.009)+
+  labs(x="Partei", y = "Term", fill ="Relative Häufigkeit")
+
+```
+
+
+## TF-IDF Scores
+
+Im Weiteren wird anhand der AfD erklärt, wie die TF-IDF Werte für eine Partei errechnet werden. In dem hier gezeigten Plot werden nur etwa 30 Terme, mit den höchsten TF-IDF Wert für jede Partei gezeigt. Für jede Partei ist eine Liste mit den 100 höchstbewerteten Termen in dem Verzeichnis _data_ enthalten.
+Für die Darstellung der Terme werden zudem Selbstbezeichnungen wie _afd_ herausgefiltert, weil diese oft einen sehr hohen Score haben, aber nicht sehr aussagekräftig sind.
+
+```{r tfidf_afd}
+# Group dfm by party
+party.dfm <- dfm(program_dfm, groups = "party")
+# Create tfidf
+tfidf <- dfm_tfidf(party.dfm)
+
+# Get scores for AfD
+tfidf.afd <- dfm_subset(tfidf, party == "AfD")
+
+# Filter out self referential terms.
+top.afd <- head(textstat_frequency(tfidf.afd, force =TRUE), 30) %>% filter(feature != "afd")
+
+```
+
+
+```{r plot_afd}
+ggplot(top.afd , aes(x=feature, y=frequency)) +
+  geom_segment( aes(x=top.afd $feature, xend=top.afd $feature, y=0, yend=frequency), color="skyblue") +
+  geom_point( color="blue", size=4, alpha=0.6) +
+  theme_light() +
+  coord_flip() +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.border = element_blank(),
+    axis.ticks.y = element_blank()
+  )+
+  labs(x ="Term", y="TF-IDF-Score")+
+  ggtitle("Alternative für Deutschland - Terme mit höchsten TF-IDF-Wert")
+
+```
+
+Die Plots für die übrigen Parteien wurden analog erstellt:
+
+```{r plot_cdu, echo =FALSE}
+tfidf.cdu <- dfm_subset(tfidf, party == "CDU")
+top.cdu <- head(textstat_frequency(tfidf.cdu, force =TRUE), 30) %>%  filter(!(feature %in%  c("cdu", "csu")))
+
+
+# Plot 30 terms with highest tf idf score.
+ggplot(top.cdu, aes(x=feature, y=frequency)) +
+  geom_segment( aes(x=top.cdu$feature, xend=top.cdu$feature, y=0, yend=frequency), color="skyblue") +
+  geom_point( color="blue", size=4, alpha=0.6) +
+  theme_light() +
+  coord_flip() +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.border = element_blank(),
+    axis.ticks.y = element_blank()
+  )+
+  labs(x ="Term", y="TF-IDF-Score")+
+  ggtitle("CDU - Terme mit höchsten TF-IDF-Wert")
+
+```
+
+```{r plot_spd, echo =FALSE}
+tfidf.spd <- dfm_subset(tfidf, party == "SPD")
+top.spd <- head(textstat_frequency(tfidf.spd, force =TRUE), 30) %>% filter(!(feature %in%  c("spd")))
+
+
+# Terms with highest if idf score
+ggplot(top.spd, aes(x=feature, y=frequency)) +
+  geom_segment( aes(x=top.spd$feature, xend=top.spd$feature, y=0, yend=frequency), color="skyblue") +
+  geom_point( color="blue", size=4, alpha=0.6) +
+  theme_light() +
+  coord_flip() +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.border = element_blank(),
+    axis.ticks.y = element_blank()
+  )+
+  labs(x ="Term", y="TF-IDF-Score")+
+  ggtitle("SPD - Terme mit höchsten TF-IDF-Wert")
+
+```
+
+```{r plot_fdp, echo =FALSE}
+tfidf.fdp <- dfm_subset(tfidf, party == "FDP")
+top.fdp <- head(textstat_frequency(tfidf.fdp, force =TRUE), 30) %>% filter(!(feature %in%  c("fdp")))
+
+ggplot(top.fdp, aes(x=feature, y=frequency)) +
+  geom_segment( aes(x=top.fdp$feature, xend=top.fdp$feature, y=0, yend=frequency), color="skyblue") +
+  geom_point( color="blue", size=4, alpha=0.6) +
+  theme_light() +
+  coord_flip() +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.border = element_blank(),
+    axis.ticks.y = element_blank()
+  )+
+  labs(x ="Term", y="TF-IDF-Score")+
+  ggtitle("FDP - Terme mit höchsten TF-IDF-Wert")
+
+
+```
+
+```{r plot_linke, echo =FALSE}
+# DIE LINKE -TF-IDF
+tfidf.linke <- dfm_subset(tfidf, party == "DIELINKE")
+top.linke <- head(textstat_frequency(tfidf.linke, force =TRUE), 30) %>% filter(!(feature %in%  c("dielinke")))
+
+# Plot terms with highest score
+ggplot(top.linke, aes(x=feature, y=frequency)) +
+  geom_segment( aes(x=top.linke$feature, xend=top.linke$feature, y=0, yend=frequency), color="skyblue") +
+  geom_point( color="blue", size=4, alpha=0.6) +
+  theme_light() +
+  coord_flip() +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.border = element_blank(),
+    axis.ticks.y = element_blank()
+  )+
+  labs(x ="Term", y="TF-IDF-Score")+
+  ggtitle("DIE LINKE - Terme mit höchsten TF-IDF-Wert")
+
+```
+
+```{r plot_gruene, echo =FALSE}
+tfidf.gruene <- dfm_subset(tfidf, party == "B90dieGruene")
+top.gruene <- head(textstat_frequency(tfidf.gruene, force =TRUE), 30) %>% filter(!(feature %in%  c("b90diegruene")))
+
+
+# Plot terme with highest tf-idf
+ggplot(top.gruene, aes(x=feature, y=frequency)) +
+  geom_segment( aes(x=top.gruene$feature, xend=top.gruene$feature, y=0, yend=frequency), color="skyblue") +
+  geom_point( color="blue", size=4, alpha=0.6) +
+  theme_light() +
+  coord_flip() +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.border = element_blank(),
+    axis.ticks.y = element_blank()
+  )+
+  labs(x ="Term", y="TF-IDF-Score")+
+  ggtitle("B90 Die Grüne - Terme mit höchsten TF-IDF-Wert")
+```
+
+```{r plot_pds, echo =FALSE}
+tfidf.pds<- dfm_subset(tfidf, party == "PDS")
+top.pds <- head(textstat_frequency(tfidf.pds, force =TRUE), 30) %>% filter(!(feature %in%  c("pds", "linkspartei.pds")))
+
+# Plot terms with high Tf-IDF score
+ggplot(top.pds, aes(x=feature, y=frequency)) +
+  geom_segment( aes(x=top.pds$feature, xend=top.pds$feature, y=0, yend=frequency), color="skyblue") +
+  geom_point( color="blue", size=4, alpha=0.6) +
+  theme_light() +
+  coord_flip() +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.border = element_blank(),
+    axis.ticks.y = element_blank()
+  )+
+  labs(x ="Term", y="TF-IDF-Score")+
+  ggtitle("PDS - Terme mit höchsten TF-IDF-Wert")
+```
+
+
