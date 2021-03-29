@@ -6,7 +6,7 @@ library(udpipe)
 source("functions/lemmatize.R")
 
 # Load model necessary for lemmatization and tagging. 
-model_deutsch <- udpipe_load_model(file="german-gsd-ud-2.5-191206.udpipe")
+model_deutsch <- udpipe_load_model(file="data/german-gsd-ud-2.5-191206.udpipe")
 
 # Add custom stopwords
 custom_stops <- c(stopwords("german"), c(""," ", "|","dass", "dabei", "dafür", "sowie", "daher"))
@@ -31,7 +31,7 @@ load("RData/lemmatized_corpus.RData")
 docvars(programs, field="year") <- as.integer(docvars(programs, field="year"))
 
 # Create tokens object for whole corpus. filter out stopwords.
-program_toks <- tokens(programs,remove_punct = TRUE) %>% tokens_remove(custom_stops, padding = FALSE ) %>% tokens_remove(c("", "|"))
+program_toks <- tokens(programs,remove_punct = TRUE) %>% tokens_remove(custom_stops)
 
 # Create dfm for corpus
 program_dfm <- dfm(program_toks)

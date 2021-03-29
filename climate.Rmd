@@ -1,0 +1,109 @@
+---
+title: "Klimabegriffe in Wahlprogrammen"
+author: "Anina Klaus, Katja Konermann und Niklas Stepczynski"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r set-options, echo=FALSE, cache=FALSE}
+options(width = 100)
+```
+## Vorverarbeitung
+Wie für die anderen Untersuchungen müssen auch hier die nötigen Bibliotheken geladen werden.
+
+```{r vor, message=FALSE, warning=FALSE}
+library(quanteda)
+library(tidyverse)
+library(udpipe)
+```
+
+Das lemmatisierte Korpus und die Stoppwörter können über _RData_-Dateien geladen werden.
+
+```{r load}
+load("RData/lemmatized_corpus.RData")
+load("RData/custom_stopwords.RData")
+```
+
+Nach der Entfernung der Stoppwörter wird eine _Document-Feature-Matrix_ erstellt.
+```{r}
+docvars(programs, field="year") <- as.integer(docvars(programs, field="year"))
+
+# Create tokens object for whole corpus. filter out stopwords.
+program_toks <- tokens(programs,remove_punct = TRUE) %>% tokens_remove(custom_stops)
+
+# Create dfm for corpus
+program_dfm <- dfm(program_toks)
+```
+
+## Klimawörterbuch
+
+Für den zweiten Teil des Projektes wurde das Wörterbuch mit Klimabegriffen erweitert. Das verwendete Wörterbuch sieht dann folgendermaßen aus:
+
+```{r lexicon}
+climate_dict <- c( "klimawandel", 
+                   "treibhaus*", 
+                   "CO2", 
+                   "erderwärmung", 
+                   phrase("erneuerbare energien"),
+                   "2-Grad-Ziel",
+                   "zwei-grad-ziel",
+                   "klimakrise",
+                   "klimakatastrophe",
+                   "klimaschutz",
+                   "abholzung",
+                   phrase("fossile energie*"),
+                   "atmosphäre",
+                   "kohlenstoffdioxid",
+                   "emission*")
+```
+
+## Häufigkeiten der Klimabegriffe
+
+Zunächst wird die _Document-Feature-Matrix_ nach den Klimabegriffen gefiltert. Mithilfe der `textstat_frequency` Funktion wird die Frequenz von Termen nach Partei aufgeführt. Dann kann ein Graph mit `ggplot` erstellt werden, der zeigt, wie oft und von welcher Partei die Terme verwendet werden. 
+
+```{r climate_freq}
+# Select climate terms and create dfm.
+klima.party <- dfm(program_dfm, select = climate_dict)
+
+## Plot frequency of each climate terms.
+ggplot(textstat_frequency(klima.party, groups="party")) + 
+  geom_bar(aes(fill=group, y=frequency, x=feature),position="stack", stat="identity")+
+  ggtitle("Häufigkeit der Klimabegriffe")+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(x = "Terme", y = "Häufigkeit", fill = "Partei")+
+  scale_fill_manual(values = c("blue", "#009933", "black", "red", "#FFFF00", "brown","#CC0066"))
+```
+
+
+## Häufigkeit der Klimabegriffe über Jahre
+
+Wie sich die Häufigkeit der Klimabegriffe über die Jahre entwickelt hat, kann folgendermaßen dargestellt werden: Zunächst müssen die Terme nach Jahr und Partei gruppiert werden. Das geschieht mit der Funktion `textstat-frequency`. Die Spalte `group` wird danach in zwei seperate Spalten `year` und `party` aufgesplittet. 
+
+```{r climate_years}
+klima.year <- textstat_frequency(dfm(program_dfm, select = climate_dict), groups=c("party", "year"))
+# Add columns for parties and year
+klima.year$party <- lapply(strsplit(klima.year$group, "[.]"), function(l) l[[1]])
+klima.year$year <- lapply(strsplit(klima.year$group, "[.]"), function(l) l[[2]])
+klima.year$year <- as.character(klima.year$year)
+klima.year$party <- as.character(klima.year$party)
+```
+
+Mit diesen Informationen kann die Grafik erstellt werden.
+
+```{r climate_plot}
+# Plot frequency of terms over years.
+ggplot(klima.year) + 
+  geom_bar(aes(y=frequency, x=year, fill = party), 
+           position="stack", 
+           stat="identity")+
+  ggtitle("Klimabegriffe über Jahre")+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  labs(y = "Frequenz", x = "Jahre", fill = "Partei")+
+  scale_fill_manual(values = c("blue", "#009933", "black", "red", "#FFFF00", "brown","#CC0066"))
+```
+
