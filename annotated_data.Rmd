@@ -1,0 +1,263 @@
+---
+title: "Politik_pruef"
+author: "Anina Klaus"
+date: "28 3 2021"
+output: html_document
+---
+
+# Allg Überschrift
+
+```{r setup, message=FALSE, warning=FALSE}
+library(quanteda)
+library(readtext)
+library(udpipe)
+library(tidyverse)
+```
+
+Benötigte _libraries_:
+
+- quanteda: Korpus erstellen
+
+- readtext: Dateien sinnvoll einlesen
+
+- udpipe: Korpus annotieren
+
+- tidyverse: viele R-Funktionen und ggplot
+
+### Vorbereitung des Korpus
+
+Zunächst muss der Korpus eingelesen werden:
+
+```{r program}
+programs <- readtext("Korpus-Dateien", 
+                     docvarsfrom = "filenames",
+                     docvarnames = c("type", "party", "year"),
+                     dvsep = "-",
+                     encoding="utf-8") %>% corpus()
+```
+
+### Vorbereitung der Sentimentdaten
+
+Für die Sentimentanalyse verwenden wir das SentiWS-Wörterbuch. Es wird als _data.frame_ gespeichert, in der ersten Spalte findet sich der Term, in der Zweiten der dazugehörige Sentimentwert.
+
+```{r sentiment}
+# prepare sentiment dicts
+neg <- scan("SentiWS_v1.8c_Negative.txt", what = "char", sep = "\n", fileEncoding="utf-8")
+pos <- scan("SentiWS_v1.8c_Positive.txt", what = "char", sep = "\n", fileEncoding="utf-8")
+s <- str_split(neg, "\t")
+t <- str_split(pos, "\t")
+terms.neg <- sub("([A-Za-zß]+)[|][A-Za-z]+", "\\1",lapply(s, function(l) l[[1]]))
+terms.pos <- sub("([A-Za-zß]+)[|][A-Za-z]+", "\\1",lapply(t, function(l) l[[1]]))
+
+value.neg <- unlist(lapply(s, function(l) as.double(l[[2]])))
+value.pos <- unlist(lapply(t, function(l) as.double(l[[2]])))
+
+positive <- data.frame(term=terms.pos, value=value.pos)
+negative <- data.frame(term=terms.neg, value=value.neg)
+head(positive)
+head(negative)
+
+# combine positive and negative
+senti_dict <- rbind(positive, negative)
+```
+
+Außerdem muss der annotierte Korpus geladen werden.
+
+```{r annotate}
+load("annotated_corpus.RData")
+head(annotated_model)[c(1:3,5:13)]
+```
+
+Die .RData-Datei wurde mit dem folgenden Code erstellt, das Annotieren des gesamten Korpus dauert allerdings seine Zeit.
+
+```{r eval=FALSE}
+annotated_model <- udpipe_annotate(udmodel_german, x = programs) %>%
+  as.data.frame()
+save(annotated_model, file='annotated_corpus.RData')
+```
+
+Im nächsten Schritt wird der Korpus aufgeteilt, je nachdem, ob das Wahlprogramm durch eine regierungsbeteiligte Partei erstellt wurde oder durch eine Partei der Opposition.
+
+```{r subcorpora}
+# partition of corpus
+regierung <- c('doc3', 'doc4', 'doc10', 'doc11', 'doc12', 'doc19', 'doc23', 'doc24', 'doc25', 'doc27')
+opposition <- c('doc1', 'doc2', 'doc5', 'doc6', 'doc7', 'doc8', 'doc9', 'doc13', 'doc14', 'doc15', 'doc16', 'doc17', 'doc18', 'doc20', 'doc21', 'doc22', 'doc26')
+
+# split into 
+sub_model_regierung <- subset(annotated_model, doc_id %in% regierung)
+sub_model_opposition <- subset(annotated_model, doc_id %in% opposition)
+```
+
+Im folgenden haben wir zwei Listen (das etwas komplizierte R-Äquivalent zu _dictionaries_ in Python), in denen für jedes Dokument die Begriffe gespeichert sind, mit denen die Verfasserin auf sich selbst referieren könnte.
+
+```{r zuordnungen}
+# list of words a party could use to talk about themselves
+# first one is name of the party
+regierung_list <- list('doc3' = c('bündnis90/die grünen', 'wir'),
+                       'doc4' = c('bündnis90/die grünen', 'wir'),
+                       'doc10' = c('cdu', 'wir'),
+                       'doc11' = c('cdu', 'wir'),
+                       'doc12' = c('cdu', 'wir'),
+                       'doc19' = c('fdp', 'wir'),
+                       'doc23' = c('spd', 'wir'),
+                       'doc24' = c('spd', 'wir'),
+                       'doc25' = c('spd', 'wir'),
+                       'doc27' = c('spd', 'wir'))
+
+opposition_list <- list('doc1' = c('afd', 'alternative', 'wir'),
+                        'doc2' = c('afd', 'alternative', 'wir'),
+                        'doc5' = c('bündnis90/die grünen', 'bündnis90', 'grüne', 'wir'),
+                        'doc6' = c('bündnis90/die grünen', 'bündnis90', 'grüne', 'wir'),
+                        'doc7' = c('bündnis90/die grünen', 'bündnis90', 'grüne', 'wir'),
+                        'doc8' = c('cdu', 'wir'),
+                        'doc9' = c('cdu', 'wir'),
+                        'doc13' = c('die linke', 'linke', 'wir'),
+                        'doc14' = c('die linke', 'linke', 'wir'),
+                        'doc15' = c('die linke', 'linke', 'wir'),
+                        'doc16' = c('fdp', 'wir'),
+                        'doc17' = c('fdp', 'wir'),
+                        'doc18' = c('fdp', 'wir'),
+                        'doc20' = c('fdp', 'wir'),
+                        'doc21' = c('pds', 'wir'),
+                        'doc22' = c('linkspartei.pds', 'wir'),
+                        'doc26' = c('spd', 'wir'))
+```
+
+Hiermit sollen jene Verben gesammelt werden, mit denen Parteien Aussagen über sich selbst treffen. Dazu helfen uns die folgenden beiden Funktionen:
+
+```{r funktion1}
+# function to extract info from "feats"-column to separate column
+featsinfo_to_column <- function(data, name) {
+  data <- cbind(data, c('-'))
+  names(data)[length(names(data))] <-  tolower(name)
+  # separate data
+  data_part1 <- data[grepl(name, data$feats) == TRUE,]
+  data_part2 <- data[grepl(name, data$feats) == FALSE,]
+  # extract data
+  pattern <- paste0(".*(", name, "=)([A-Za-z]+)[|]?.*")
+  data_part1[,ncol(data)] <- sub(pattern, "\\2",
+                                 data_part1$feats)
+  modified_data <- rbind(data_part1, data_part2)
+  return(modified_data)
+}
+```
+
+_featsinfo_to_column(annotated_data, translation_list, senti_data)_:
+
+- _annotated_data_ ist ein mit _udpipe_ annotierter (Teil-)Korpus
+
+- _name_ ist der (großgeschriebene) Name des Features, welches aus der Spalte _feats_ extrahiert werden soll.
+
+Diese fügt eine neue Spalte an das Dataframe an, in welche die Information zum Feature gespeichert wird.
+
+```{r}
+roots_for_group <- function(annotated_data, translation_list, senti_data) {
+  # extract roots
+  roots <- annotated_data %>%
+    subset(sentence %in% subset(., dep_rel == 'nsubj' & tolower(token) %in% unlist(translation_list[doc_id]))$sentence) %>%
+    subset(dep_rel == 'root')
+  
+  # extract relevant information from "feats" column
+  roots <- roots[c(1, 6:7, 10)] %>%
+    featsinfo_to_column('Tense') %>%
+    featsinfo_to_column('Mood') %>%
+    featsinfo_to_column('VerbForm')
+
+  roots <- roots[-c(2,4)]  # cut out feats and token
+  
+  roots$senti_ws <- '-'  # add sentiment column
+  for (w in unique(roots$lemma)) {
+    if (w %in% senti_data$term) {
+      if (length(senti_data[senti_data$term == w,]$value) < 2) {
+        roots[roots$lemma == w,]$senti_ws <- senti_data[senti_data$term == w,]$value
+      }
+    }
+  }
+  
+  # count words
+  roots <- roots[2:6]
+  roots <- aggregate(cbind(roots[0],numdup=1), roots, length)
+  roots <- roots[order(roots$numdup, decreasing = TRUE),] %>%
+    filter(numdup > 2)
+  names(roots)[names(roots) == 'numdup'] <- 'freq'
+  
+  return(roots)
+}
+```
+
+_roots_for_group(annotated_data, translation_list, senti_data)_:
+
+- _annotated_data_ ist ein mit _udpipe_ annotierter (Teil-)Korpus
+
+- _translation_list_ ist eine Liste nach dem Stil der Listen _regierung_list_ und _opposition_list_, in der für jedes Dokument mögliche Subjekte gesammelt sind, zu welchen Verben gesammelt werden sollen (s.o.).
+
+- _senti_dict_ ist ein _data.frame_ wie oben beschrieben, mit einer Spalte _term_ und einer Salte _value_
+Und damit:
+
+Diese Funktion sammelt die Lemmata der Verben, mit denen Parteien ihr eigenes Handeln beschreiben und speichert allerlei Informationen über sie. Gesammelt werden _tense_, _mood_, _verbform_, Semtimentwert sowie Häufigkeit.
+
+```{r}
+opp_roots <- roots_for_group(sub_model_opposition, opposition_list, senti_dict)
+head(opp_roots)
+gov_roots <- roots_for_group(sub_model_regierung, regierung_list, senti_dict)
+head(gov_roots)
+```
+
+Die folgende Funktion sammelt Sentimentwerte und Frequenz für beliebige Werte einer Kategorie.
+
+_collect_sentiment_for_cat(annotated_data, category, value, senti_data):_
+
+- _annotated_data_ ist ein mit _udpipe_ annotierter (Teil-)Korpus
+
+- _category_ ist die Spalte, in der gesucht werden soll.
+
+- _value_ der Wert, nach dem gefiltert werden soll.
+
+```{r generalstuff}
+# function to collect sentiment for category
+collect_sentiment_for_cat <- function(annotated_data, category, value, senti_data) {
+  # filter data
+  index <- grep(category, colnames(annotated_data))
+  filtered_data <- subset(annotated_data, annotated_data[,index] == value)
+  filtered_data$senti_ws <- '-'
+  senti_df <- filtered_data[c(7,8)]
+  
+  senti_df$senti_ws <- '-'  # add sentiment column
+  for (w in unique(senti_df$lemma)) {
+    if (w %in% senti_data$term) {
+      if (length(senti_data[senti_data$term == w,]$value) < 2) {
+        senti_df[senti_df$lemma == w,]$senti_ws <- senti_data[senti_data$term == w,]$value
+      }
+    }
+  }
+  # count words
+  senti_df <- aggregate(cbind(senti_df[0],numdup=1), senti_df, length)
+  senti_df <- senti_df[order(senti_df$numdup, decreasing = TRUE),] %>%
+    filter(numdup > 1)
+  names(senti_df)[names(senti_df) == 'numdup'] <- 'freq'
+  return(senti_df[-2])
+}
+```
+
+Das Ergebnis sieht wiefolgt aus:
+
+```{r}
+opp_nouns <- collect_sentiment_for_cat(sub_model_opposition, "upos", 'NOUN', senti_dict)
+head(opp_nouns)
+gov_nouns <- collect_sentiment_for_cat(sub_model_regierung, "upos", 'NOUN', senti_dict)
+head(gov_nouns)
+opp_adv <- collect_sentiment_for_cat(sub_model_opposition, "upos", 'ADJ', senti_dict)
+head(opp_adv)
+gov_adv <- collect_sentiment_for_cat(sub_model_regierung, "upos", 'ADJ', senti_dict)
+head(gov_adv)
+```
+
+
+### Und jetzt die Auswertunng:
+
+```{r}
+# joa
+```
+
+
+
