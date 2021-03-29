@@ -91,6 +91,35 @@ ggplot(klima.year) +
   labs(y = "Frequenz", x = "Jahre", fill = "Partei")+
   scale_fill_manual(values = c("blue", "#009933", "black", "red", "#FFFF00", "brown","#CC0066"))
 
+### Keywords in Context
+
+context.all <- kwic(program_toks, pattern = climate_dict) %>% corpus() %>% dfm()
+top.30 <- head(textstat_frequency(context.all), 30)
+parties <- c("AfD", "CDU", "SPD", "PDS", "FDP", "DIELINKE", "B90dieGruene")
+terms.ranked <- data.frame(matrix(ncol = 3, nrow = 0))
+colnames(terms.ranked) <- c("feature", "party", "frequency")
+
+for (i in 1:length(parties)){
+  tokens.kwic <- tokens_subset(program_toks, party == parties[i]) %>%
+    kwic(pattern = climate_dict) %>% corpus() %>% dfm() %>% textstat_frequency()
+  x <- ifelse(top.30$feature %in% tokens.kwic$feature, tokens.kwic$frequency, 0)
+  y <- data.frame(freq = x, feat = top.30$feature)
+  #fil <- filter(tokens.kwic, feature %in% top.30$feature)
+  tmp.data <- data.frame(feature=y$feat,
+                         party=parties[i],
+                         relativ=y$freq)
+  terms.ranked <- rbind(terms.ranked, tmp.data)
+}
+
+
+# Heatmap
+ggplot(terms.ranked, aes(y=feature, x=party)) + 
+  geom_tile(aes(fill = relativ)) + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  ggtitle("Absolute Häufigkeit der Kontextwörter zum Klima")+
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 15)+
+  labs(x="Partei", y = "Term", fill ="Absoulte Häufigkeit")
+
 
 
 

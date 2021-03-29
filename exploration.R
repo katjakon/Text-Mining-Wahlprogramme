@@ -575,15 +575,130 @@ collect_sentiment_for_cat <- function(annotated_data, category, value, senti_dat
   return(senti_df[-2])
 }
 
-opp_nouns <- collect_sentiment_for_upos(sub_model_opposition, "upos", 'NOUN', senti_dict)
-gov_nouns <- collect_sentiment_for_upos(sub_model_regierung, "upos", 'NOUN', senti_dict)
-opp_adv <- collect_sentiment_for_upos(sub_model_opposition, "upos", 'ADJ', senti_dict)
-gov_adv <- collect_sentiment_for_upos(sub_model_regierung, "upos", 'ADJ', senti_dict)
+opp_nouns <- collect_sentiment_for_cat(sub_model_opposition, "upos", 'NOUN', senti_dict)
+gov_nouns <- collect_sentiment_for_cat(sub_model_regierung, "upos", 'NOUN', senti_dict)
+opp_adv <- collect_sentiment_for_cat(sub_model_opposition, "upos", 'ADJ', senti_dict)
+gov_adv <- collect_sentiment_for_cat(sub_model_regierung, "upos", 'ADJ', senti_dict)
 
 head(opp_nouns)
 head(gov_nouns)
+## TOP NOUNS OPPOS AND GOV
+noun.top <- union(head(opp_nouns, 60)$lemma, head(gov_nouns, 40)$lemma)
+
+sum.gov <- sum(gov_nouns$freq)
+sum.opp <- sum(opp_nouns$freq)
+freq.nouns <- data.frame(matrix(ncol=3, nrow=0))
+colnames(freq.nouns) <- c("lemma", "freq_gov", "freq_opp")
+
+for (i in 1:length(noun.top)){
+  curr.noun <- noun.top[i]
+  gov.freq <- sum(filter(gov_nouns, lemma == curr.noun)$freq)/sum.gov
+  opp.freq <- sum(filter(opp_nouns, lemma == curr.noun)$freq)/sum.opp
+  tmp.data <- data.frame(lemma=curr.noun, gov_freq = gov.freq, opp_freq = opp.freq)
+  freq.nouns <- rbind(freq.nouns, tmp.data)
+  
+}
+freq.nouns$gov.greater <- ifelse(freq.nouns$gov_freq >= freq.nouns$opp_freq, TRUE, FALSE)
+
+
+ggplot(freq.nouns, aes(y = gov_freq, x = opp_freq, label =lemma, color = gov.greater))+
+  geom_text(size = 5)+
+  scale_x_continuous(trans = 'log10', breaks = c(0, 0.001, 0.010, 0.1)) +
+  scale_y_continuous(trans = 'log10', breaks = c(0, 0.001, 0.010, 0.05))+
+  scale_color_manual(values = c('TRUE' = 'darkblue', 'FALSE' = 'darkred'), guide = "none")+
+  theme_minimal()+
+  labs(x="Relative Frequenz in Oppositionsparteien",
+       y="Relative Frequenz in Regierungsparteien",
+       title="Häufige Nomen bei Oppositions- und Regierungsparteien")+
+  theme(axis.text=element_text(size=16),
+        axis.title=element_text(size=20,face="bold"))
+
+
+## OPP GOV ADJ
 head(opp_adv)
 head(gov_adv)
 
+adj.top <- union(head(opp_adv, 50)$lemma, head(gov_adv, 50)$lemma)
+
+sum.gov <- sum(gov_adv$freq)
+sum.opp <- sum(opp_adv$freq)
+freq.adj <- data.frame(matrix(ncol=3, nrow=0))
+colnames(freq.nouns) <- c("lemma", "freq_gov", "freq_opp")
+
+for (i in 1:length(adj.top)){
+  curr.adj <- adj.top[i]
+  gov.freq <- sum(filter(gov_adv, lemma == curr.adj)$freq)/sum.gov
+  opp.freq <- sum(filter(opp_adv, lemma == curr.adj)$freq)/sum.opp
+  tmp.data <- data.frame(lemma=curr.adj, gov_freq = gov.freq, opp_freq = opp.freq)
+  freq.adj <- rbind(freq.adj, tmp.data)
+  
+}
+
+freq.adj$gov.greater <- ifelse(freq.adj$gov_freq >= freq.adj$opp_freq, TRUE, FALSE)
+
+
+ggplot(freq.adj, aes(y = gov_freq, x = opp_freq, label =lemma, color = gov.greater))+
+  geom_text(size = 5)+
+  scale_x_continuous(trans = 'log10', breaks = c(0, 0.005, 0.010, 0.020)) +
+  scale_y_continuous(trans = 'log10', breaks = c(0, 0.020, 0.010, 0.005))+
+  scale_color_manual(values = c('TRUE' = 'darkblue', 'FALSE' = 'darkred'), guide = "none")+
+  theme_minimal()+
+  labs(x="Relative Frequenz in Oppositionsparteien",
+       y="Relative Frequenz in Regierungsparteien",
+       title="Häufige Adjektive bei Oppositions- und Regierungsparteien")+
+  theme(axis.text=element_text(size=16),
+        axis.title=element_text(size=20,face="bold"))
+
+
+## TENSE
+
+s.gov <- sum(gov_roots$freq)
+s.opp <- sum(opp_roots$freq)
+
+gov.type <- c("opposition", "goverment")
+pres.type <- c(sum(filter(opp_roots, tense == "Pres")$freq)/s.opp,
+               sum(filter(gov_roots, tense == "Pres")$freq)/s.gov)
+past.type <- c(sum(filter(opp_roots, tense == "Past")$freq)/s.opp,
+               sum(filter(gov_roots, tense == "Past")$freq)/s.gov)
+
+tense <- data.frame(type=gov.type, pres =pres.type, past=past.type)
+
+## VERBFORM
+
+inf.type <-  c(sum(filter(opp_roots, verbform == "Inf")$freq)/s.opp,
+               sum(filter(gov_roots, verbform == "Inf")$freq)/s.gov)
+fin.type <- c(sum(filter(opp_roots, verbform == "Fin")$freq)/s.opp,
+              sum(filter(gov_roots, verbform == "Fin")$freq)/s.gov)
+part.type <- c(sum(filter(opp_roots, verbform == "Part")$freq)/s.opp,
+               sum(filter(gov_roots, verbform == "Part")$freq)/s.gov)
+
+verbform <- data.frame(type=gov.type, inf=inf.type, fin =fin.type, part = part.type)
+
+
+### Sentiment -- Adjectives
+gov_adv
+
+# Government
+adj.s.gov <- sum(gov_adv$freq)
+
+tmp.sent <- ifelse(gov_adv$senti_ws == "-", 0, gov_adv$senti_ws)
+gov_adv$tmp.sent <- as.numeric(tmp.sent)
+
+neg.adj <- filter(gov_adv, tmp.sent<0)
+f <- sum(neg.adj$tmp.sent * neg.adj$freq/adj.s.gov)
+
+pos.adj <- filter(gov_adv, tmp.sent>0)
+g <- sum(pos.adj$tmp.sent * pos.adj$freq/adj.s.gov)
+
+# Opposition
+adj.s.opp <- sum(opp_adv$freq)
+tmp.sent <- ifelse(opp_adv$senti_ws == "-", 0, opp_adv$senti_ws)
+opp_adv$tmp.sent <- as.numeric(tmp.sent)
+
+neg.adj <- filter(opp_adv, tmp.sent<0)
+h <- sum(neg.adj$tmp.sent * neg.adj$freq/adj.s.opp )
+
+pos.adj <- filter(opp_adv, tmp.sent>0)
+i <- sum(pos.adj$tmp.sent * pos.adj$freq/adj.s.opp )
 
 
