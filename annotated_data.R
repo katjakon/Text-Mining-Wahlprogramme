@@ -10,7 +10,6 @@ source("functions/collect_sentiment_for_cat.R")
 ######################
 ### Sentiment data ###
 ######################
-
 # prepare sentiment data
 neg <- scan("data/SentiWS_v1.8c_Negative.txt", what = "char", sep = "\n", fileEncoding="utf-8")
 pos <- scan("data/SentiWS_v1.8c_Positive.txt", what = "char", sep = "\n", fileEncoding="utf-8")
@@ -26,7 +25,6 @@ positive <- data.frame(term=terms.pos, value=value.pos)
 negative <- data.frame(term=terms.neg, value=value.neg)
 
 # add sentiment value
-
 senti_dict <- rbind(positive, negative)
 
 # OR: Load sentiment dictionary
@@ -80,7 +78,6 @@ opposition_list <- list('doc1' = c('afd', 'alternative', 'wir'),
                         'doc21' = c('pds', 'wir'),
                         'doc22' = c('linkspartei.pds', 'wir'),
                         'doc26' = c('spd', 'wir')) 
-
 
 
 # use function on opposition subset of annotated model
@@ -237,7 +234,7 @@ tmp.sent <- ifelse(gov_adv$senti_ws == "-", 0, gov_adv$senti_ws)
 gov_adv$tmp.sent <- as.numeric(tmp.sent)
 
 neg.adj <- filter(gov_adv, tmp.sent<0)
-f <- sum(neg.adj$tmp.sent * neg.adj$freq/adj.s.gov)
+f <- abs(sum(neg.adj$tmp.sent * neg.adj$freq/adj.s.gov))
 
 pos.adj <- filter(gov_adv, tmp.sent>0)
 g <- sum(pos.adj$tmp.sent * pos.adj$freq/adj.s.gov)
@@ -248,9 +245,25 @@ tmp.sent <- ifelse(opp_adv$senti_ws == "-", 0, opp_adv$senti_ws)
 opp_adv$tmp.sent <- as.numeric(tmp.sent)
 
 neg.adj <- filter(opp_adv, tmp.sent<0)
-h <- sum(neg.adj$tmp.sent * neg.adj$freq/adj.s.opp )
+h <- abs(sum(neg.adj$tmp.sent * neg.adj$freq/adj.s.opp))
 
 pos.adj <- filter(opp_adv, tmp.sent>0)
 i <- sum(pos.adj$tmp.sent * pos.adj$freq/adj.s.opp )
 
+# Erstellung von Dataframe und Plot
+
+adv_senti <- c('positive', 'negative', 'positive', 'negative')
+combi_assignment <- c('Regierung', 'Regierung', 'Opposition', 'Opposition')
+
+adv_senti_df <- data.frame(adv_senti, combi_assignment)
+adv_senti_df$Wert <- c(g, f, i, h)
+
+adv_senti_plot <- ggplot(adv_senti_df, aes(x=adv_senti, y=Wert, fill=combi_assignment)) +
+  geom_bar(stat='identity', position='dodge') +
+  xlab('Sentiment') +
+  ylab('kumulierter Wert') +
+  ggtitle('kumulierte Sentimentwerte für Adjektive') +
+  guides(fill=guide_legend(title="Position")) + 
+  scale_fill_manual("Position", values = c("Opposition" = "darkred", "Regierung" = "darkblue"))
+adv_senti_plot
 
