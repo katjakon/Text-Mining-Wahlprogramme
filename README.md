@@ -16,6 +16,11 @@ Das wirft unter anderem folgende Fragen auf:
 + `udpipe`, siehe [hier](https://cran.r-project.org/web/packages/udpipe/index.html) für Informationen zur Installation.
 + `tidyverse`, siehe [hier](https://www.tidyverse.org/packages/) für Informationen zur Installation.
 
+# Erklärungen zum Code
+Für jeden Abschnitt im Bericht können auf folgender Seite der Code, mit dem die Untersuchungen durchgeführt wurden, und dazugehörige Erklärungen abgerufen werden:<br>
+https://katjakon.github.io/Text-Mining-Wahlprogramme/
+
+
 # Korpus
 Das Korpus enthält Wahlprogramme zur Bundestagswahl von 2002 bis 2017. Die Originale sind hier abrufbar:
 + [CDU](https://www.kas.de/de/web/geschichte-der-cdu/wahlprogramme-und-slogans)
