@@ -29,9 +29,6 @@ Weil die Lemmatisierung einige Zeit braucht, ist die lemmatisierte Version des K
 load("RData/lemmatized_corpus.RData")
 # Load custom stopwords
 load("RData/custom_stopwords.RData")
-
-#show custom stops
-custom_stops
 ```
 
 Die Stoppwörter werden dann aus den Wahlprogrammen herausgefiltert. Danach kann eine Document-Feature-Matrix erstellt werden.
@@ -76,7 +73,10 @@ for (i in 1:length(parties)){
                          relativ=stat.party.filtered$frequency/sum.freq)
   terms.ranked <- rbind(terms.ranked, tmp.data)
 }
+
+head(terms.ranked, 20)
 ```
+
 
 In einer Heatmap werden diese Häufigkeiten dann zwischen den Parteien verglichen. Niedrige relative Häufigkeiten sind dabei blau, hohe dagegen rot.
 

@@ -51,6 +51,9 @@ value.pos <- unlist(lapply(t, function(l) as.double(l[[2]])))
 # Save results in data frame.
 positive <- data.frame(term=terms.pos, value=value.pos)
 negative <- data.frame(term=terms.neg, value=value.neg)
+
+# show result
+head(positive)
 ```
 
 
@@ -93,6 +96,9 @@ for (i in 1:length(lvl.year)){
   curr.row <- data.frame(year = lvl.year[i], rel_freq=sum.freq/sum.all, sent = "negative")
   sent.years <- rbind(sent.years, curr.row)
 }
+
+# Show format
+head(sent.years, 10)
 ```
 
 Im nächsten Schritt kann das erstellte _Data Frame_ dann visualisiert werden:
@@ -137,6 +143,8 @@ for (i in 1:length(party.vec)){
   row.neg <- data.frame(party = curr.party, sent="negativ", frequency=curr.neg/sum.all)
   sent.party <- rbind(sent.party, row.pos, row.neg)
 }
+# show result
+head(sent.party, 10)
 ```
 
 Das Resultat kann dann folgendermaßen visualisiert werden.
@@ -186,6 +194,8 @@ for (i in 1:length(lvl)){
   
 }
 
+pos.year.party
+
 # Plot positive terms for parties over years.
 ggplot(pos.year.party, aes(fill = party, x=year, y=rel)) +
   geom_bar(position = "dodge", stat="identity")+
@@ -215,6 +225,8 @@ for (i in 1:length(lvl)){
                         rel=sum(neg.lvl$frequency)/sum.lvl)
   neg.year.party <- rbind(neg.year.party, tmp.row)
 }
+
+neg.year.party
 
 # Plot negative sentiment over years for parties.
 ggplot(neg.year.party, aes(fill = party, x=year, y=rel)) +
@@ -289,6 +301,8 @@ for (i in 1:length(part.lvl)){
   tmp <- data.frame(party=tmp.party, pos=p, neg=n)
   sent.values <- rbind(sent.values, tmp)
 }
+# Show result
+head(sent.values, 10)
 
 ```
 Das Resultat kann dann als eine Gegenüberstellung des negativen und positiven Sentimentscores nach Partei dargestellt werden:
