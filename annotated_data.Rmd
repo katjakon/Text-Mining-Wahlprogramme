@@ -35,27 +35,11 @@ programs <- readtext("Korpus-Dateien",
 
 ### Vorbereitung der Sentimentdaten
 
-Für die Sentimentanalyse verwenden wir das SentiWS-Wörterbuch. Es wird als _data.frame_ gespeichert, in der ersten Spalte findet sich der Term, in der Zweiten der dazugehörige Sentimentwert.
+Für die Sentimentanalyse verwenden wir das SentiWS-Wörterbuch. Es wird als _data.frame_ gespeichert, in der ersten Spalte findet sich der Term, in der Zweiten der dazugehörige Sentimentwert. Die Erstellung des Sentiment-Dictionaries wird im Abschnitt "Sentiment" gezeigt.
 
 ```{r sentiment}
-# prepare sentiment dicts
-neg <- scan("data/SentiWS_v1.8c_Negative.txt", what = "char", sep = "\n", fileEncoding="utf-8")
-pos <- scan("data/SentiWS_v1.8c_Positive.txt", what = "char", sep = "\n", fileEncoding="utf-8")
-s <- str_split(neg, "\t")
-t <- str_split(pos, "\t")
-terms.neg <- sub("([A-Za-zß]+)[|][A-Za-z]+", "\\1",lapply(s, function(l) l[[1]]))
-terms.pos <- sub("([A-Za-zß]+)[|][A-Za-z]+", "\\1",lapply(t, function(l) l[[1]]))
-
-value.neg <- unlist(lapply(s, function(l) as.double(l[[2]])))
-value.pos <- unlist(lapply(t, function(l) as.double(l[[2]])))
-
-positive <- data.frame(term=terms.pos, value=value.pos)
-negative <- data.frame(term=terms.neg, value=value.neg)
-head(positive)
-head(negative)
-
-# combine positive and negative
-senti_dict <- rbind(positive, negative)
+# Load sentiment dictionary
+load("RData/senti_dict.RData")
 ```
 
 Außerdem muss der annotierte Korpus geladen werden.
@@ -122,6 +106,8 @@ opposition_list <- list('doc1' = c('afd', 'alternative', 'wir'),
 
 Hiermit sollen jene Verben gesammelt werden, mit denen Parteien Aussagen über sich selbst treffen. Dazu helfen uns die folgenden beiden Funktionen:
 
+### featsinfo_to_column
+
 ```{r funktion1}
 # function to extract info from "feats"-column to separate column
 featsinfo_to_column <- function(data, name) {
@@ -146,6 +132,8 @@ _featsinfo_to_column(annotated_data, translation_list, senti_data)_:
 - _name_ ist der (großgeschriebene) Name des Features, welches aus der Spalte _feats_ extrahiert werden soll.
 
 Diese fügt eine neue Spalte an das Dataframe an, in welche die Information zum Feature gespeichert wird.
+
+### roots_for_group
 
 ```{r}
 roots_for_group <- function(annotated_data, translation_list, senti_data) {
@@ -188,17 +176,18 @@ _roots_for_group(annotated_data, translation_list, senti_data)_:
 
 - _translation_list_ ist eine Liste nach dem Stil der Listen _regierung_list_ und _opposition_list_, in der für jedes Dokument mögliche Subjekte gesammelt sind, zu welchen Verben gesammelt werden sollen (s.o.).
 
-- _senti_dict_ ist ein _data.frame_ wie oben beschrieben, mit einer Spalte _term_ und einer Salte _value_
-Und damit:
+- _senti_data_ ist ein _data.frame_ wie oben beschrieben, mit einer Spalte _term_ und einer Salte _value_
 
 Diese Funktion sammelt die Lemmata der Verben, mit denen Parteien ihr eigenes Handeln beschreiben und speichert allerlei Informationen über sie. Gesammelt werden _tense_, _mood_, _verbform_, Semtimentwert sowie Häufigkeit.
 
-```{r}
-opp_roots <- roots_for_group(sub_model_opposition, opposition_list, senti_dict)
-head(opp_roots)
-gov_roots <- roots_for_group(sub_model_regierung, regierung_list, senti_dict)
-head(gov_roots)
+```{r test_roots_for_group}
+translation_complete <- c(regierung_list, opposition_list)
+head(roots_for_group(annotated_model, translation_complete, senti_dict))
 ```
+
+
+
+### collect_sentiment_for_cat
 
 Die folgende Funktion sammelt Sentimentwerte und Frequenz für beliebige Werte einer Kategorie.
 
@@ -250,11 +239,237 @@ head(gov_adv)
 ```
 
 
-### Und jetzt die Auswertunng:
+### Auswertung der Daten: Gegenüberstellung von Regierung und Opposition
+
+#### Frequenz
+
+Mithilfe der durch _roots_for_group_-Funktion lassen sich jene Prädikate sammeln, welche die Parteien verwenden, wenn sie in ihren Programmen Aussagen über sich selbst tätigen, also in Sätzen wie "Wir forden..." oder "Die FDP befürwortet...". Zunächst haben wir überprüft, wie sich die quantitative Verteilung der Verwendung dieser Prädikate für Regierungs- und Oppositionsparteien gestaltet.
+
+Der erste Schritt ist die Erstellung der _root_-Dataframes für die Subsets des annotierten Modells.
 
 ```{r}
-# joa
+opp_roots <- roots_for_group(sub_model_opposition, opposition_list, senti_dict)
+head(opp_roots)
+gov_roots <- roots_for_group(sub_model_regierung, regierung_list, senti_dict)
+head(gov_roots)
 ```
+
+Zunächst betrachten wir also die Frequenz. Nach der Erstellung eines Dataframes, welches die Top50-Prädikate der Oppositionswahlprogramme mit den Top50-Prädikaten der Regierungswahlprogramme vereinigt, sowie der Normalisierung der Werte kann man die Verteilung plotten.
+
+```{r}
+# Self referential verbs
+verbs.top.50 <- union(head(gov_roots, 50)$lemma, head(opp_roots, 50)$lemma)
+freq.verbs <- data.frame(matrix(ncol=3, nrow=0))
+colnames(freq.verbs) <- c("lemma", "freq_gov", "freq_opp")
+sum.all.gov <- sum(gov_roots$freq)
+sum.all.opp <- sum(opp_roots$freq)
+for (i in 1:length(verbs.top.50)){
+  curr.verb <- verbs.top.50[i]
+  freq.gov <- sum(filter(gov_roots, lemma == curr.verb)$freq)/sum.all.gov
+  freq.opp <- sum(filter(opp_roots, lemma == curr.verb)$freq)/sum.all.opp
+  curr.row <- data.frame(lemma=curr.verb, freq_gov=freq.gov, freq_opp = freq.opp)
+  freq.verbs <- rbind(freq.verbs, curr.row)
+}
+freq.verbs
+gov.greater <- ifelse(freq.verbs$freq_gov >= freq.verbs$freq_opp, TRUE, FALSE)
+freq.verbs$gov.greater <- gov.greater
+```
+
+```{r, fig.height=10, fig.width=12}
+# Plot results
+ggplot(freq.verbs, aes(y = freq_gov, x = freq_opp, label =lemma, color = gov.greater))+
+  geom_text(size = 5)+
+  scale_x_continuous(trans = 'log10', breaks = c(0, 0.001, 0.010, 0.1)) +
+  scale_y_continuous(trans = 'log10', breaks = c(0, 0.001, 0.010, 0.05))+
+  scale_color_manual(values = c('TRUE' = 'darkblue', 'FALSE' = 'darkred'), guide = "none")+
+  theme_minimal()+
+  labs(x="Relative Frequenz in Oppositionsparteien",
+       y="Relative Frequenz in Regierungsparteien",
+       title="Verben in selbstreferentiellen Sätzen")+
+  theme(axis.text=element_text(size=16),
+        axis.title=element_text(size=20))
+```
+
+#### Tense
+
+Auch die Zeitformen der Verben werden durch die Funktion _roots_for_groops_ festgehalten und können so gegenübergestellt werden:
+
+```{r}
+## TENSE
+s.gov <- sum(gov_roots$freq)
+s.opp <- sum(opp_roots$freq)
+
+gov.type <- c("opposition", "goverment")
+pres.type <- c(sum(filter(opp_roots, tense == "Pres")$freq)/s.opp,
+               sum(filter(gov_roots, tense == "Pres")$freq)/s.gov)
+past.type <- c(sum(filter(opp_roots, tense == "Past")$freq)/s.opp,
+               sum(filter(gov_roots, tense == "Past")$freq)/s.gov)
+
+tense <- data.frame(type=gov.type, pres =pres.type, past=past.type)
+tense
+```
+
+#### VerbForm
+
+Gleiches ist möglich für die Kategorie "VerbForm":
+
+```{r}
+## VERBFORM
+
+inf.type <-  c(sum(filter(opp_roots, verbform == "Inf")$freq)/s.opp,
+               sum(filter(gov_roots, verbform == "Inf")$freq)/s.gov)
+fin.type <- c(sum(filter(opp_roots, verbform == "Fin")$freq)/s.opp,
+              sum(filter(gov_roots, verbform == "Fin")$freq)/s.gov)
+part.type <- c(sum(filter(opp_roots, verbform == "Part")$freq)/s.opp,
+               sum(filter(gov_roots, verbform == "Part")$freq)/s.gov)
+
+verbform <- data.frame(type=gov.type, inf=inf.type, fin =fin.type, part = part.type)
+verbform
+```
+
+#### Sentiment nach Kategorie
+
+Mit der Funktion _sentiment_for_cat_ lassen sich Sentimentwerte und Frequenzen für Tokens einer bestimmten Kategorie sammeln. Im folgenden wurden zunächst die Werte für Substantive und Adjektive gesammelt.
+
+```{r}
+opp_nouns <- collect_sentiment_for_cat(sub_model_opposition, "upos", 'NOUN', senti_dict)
+gov_nouns <- collect_sentiment_for_cat(sub_model_regierung, "upos", 'NOUN', senti_dict)
+opp_adv <- collect_sentiment_for_cat(sub_model_opposition, "upos", 'ADJ', senti_dict)
+gov_adv <- collect_sentiment_for_cat(sub_model_regierung, "upos", 'ADJ', senti_dict)
+
+head(opp_nouns)
+head(gov_nouns)
+```
+
+Als nächstes folgt die Normalisierung der Frequenzwerte:
+
+```{r}
+## top nouns opposition und Government
+noun.top <- union(head(opp_nouns, 60)$lemma, head(gov_nouns, 40)$lemma)
+
+sum.gov <- sum(gov_nouns$freq)
+sum.opp <- sum(opp_nouns$freq)
+freq.nouns <- data.frame(matrix(ncol=3, nrow=0))
+colnames(freq.nouns) <- c("lemma", "freq_gov", "freq_opp")
+
+for (i in 1:length(noun.top)){
+  curr.noun <- noun.top[i]
+  gov.freq <- sum(filter(gov_nouns, lemma == curr.noun)$freq)/sum.gov
+  opp.freq <- sum(filter(opp_nouns, lemma == curr.noun)$freq)/sum.opp
+  tmp.data <- data.frame(lemma=curr.noun, gov_freq = gov.freq, opp_freq = opp.freq)
+  freq.nouns <- rbind(freq.nouns, tmp.data)
+  
+}
+freq.nouns$gov.greater <- ifelse(freq.nouns$gov_freq >= freq.nouns$opp_freq, TRUE, FALSE)
+```
+
+Und schließlich der resultierende Plot:
+
+```{r, fig.height=10, fig.width=12}
+ggplot(freq.nouns, aes(y = gov_freq, x = opp_freq, label =lemma, color = gov.greater))+
+  geom_text(size = 5)+
+  scale_x_continuous(trans = 'log10', breaks = c(0, 0.001, 0.010, 0.1)) +
+  scale_y_continuous(trans = 'log10', breaks = c(0, 0.001, 0.010, 0.05)) +
+  scale_color_manual(values = c('TRUE' = 'darkblue', 'FALSE' = 'darkred'), guide = "none")+
+  theme_minimal() +
+  labs(x="Relative Frequenz in Oppositionsparteien",
+       y="Relative Frequenz in Regierungsparteien",
+       title="Häufige Nomen bei Oppositions- und Regierungsparteien")+
+  theme(axis.text=element_text(size=16),
+        axis.title=element_text(size=20))
+```
+
+Diese Prozedur funktioniert analog für Adjektive:
+
+```{r}
+## OPP GOV ADJ
+head(opp_adv)
+head(gov_adv)
+
+adj.top <- union(head(opp_adv, 50)$lemma, head(gov_adv, 50)$lemma)
+
+sum.gov <- sum(gov_adv$freq)
+sum.opp <- sum(opp_adv$freq)
+freq.adj <- data.frame(matrix(ncol=3, nrow=0))
+colnames(freq.nouns) <- c("lemma", "freq_gov", "freq_opp")
+
+for (i in 1:length(adj.top)){
+  curr.adj <- adj.top[i]
+  gov.freq <- sum(filter(gov_adv, lemma == curr.adj)$freq)/sum.gov
+  opp.freq <- sum(filter(opp_adv, lemma == curr.adj)$freq)/sum.opp
+  tmp.data <- data.frame(lemma=curr.adj, gov_freq = gov.freq, opp_freq = opp.freq)
+  freq.adj <- rbind(freq.adj, tmp.data)
+  
+}
+
+freq.adj$gov.greater <- ifelse(freq.adj$gov_freq >= freq.adj$opp_freq, TRUE, FALSE)
+```
+
+```{r, fig.height=10, fig.width=12}
+ggplot(freq.adj, aes(y = gov_freq, x = opp_freq, label =lemma, color = gov.greater)) +
+  geom_text(size = 5) +
+  scale_x_continuous(trans = 'log10', breaks = c(0, 0.005, 0.010, 0.020)) +
+  scale_y_continuous(trans = 'log10', breaks = c(0, 0.020, 0.010, 0.005)) +
+  scale_color_manual(values = c('TRUE' = 'darkblue', 'FALSE' = 'darkred'), guide = "none")+
+  theme_minimal() +
+  ggtitle("Häufige Adjektive bei Oppositions- und Regierungsparteien") +
+  labs(x="Relative Frequenz in Oppositionsparteien",
+       y="Relative Frequenz in Regierungsparteien") +
+  theme(axis.text=element_text(size=16),
+        axis.title=element_text(size=20))
+```
+
+### Sentimentwerte der Adjektive
+
+Auch die Sentimentwerte für einzelne Kategorien lassen sich so analysieren. 
+Nach der Aufsummierung der Addjektive lässt sich ein Dataframe erstellen:
+
+```{r}
+# Government
+adj.s.gov <- sum(gov_adv$freq)
+
+tmp.sent <- ifelse(gov_adv$senti_ws == "-", 0, gov_adv$senti_ws)
+gov_adv$tmp.sent <- as.numeric(tmp.sent)
+
+neg.adj <- filter(gov_adv, tmp.sent<0)
+f <- abs(sum(neg.adj$tmp.sent * neg.adj$freq/adj.s.gov))
+
+pos.adj <- filter(gov_adv, tmp.sent>0)
+g <- sum(pos.adj$tmp.sent * pos.adj$freq/adj.s.gov)
+
+# Opposition
+adj.s.opp <- sum(opp_adv$freq)
+tmp.sent <- ifelse(opp_adv$senti_ws == "-", 0, opp_adv$senti_ws)
+opp_adv$tmp.sent <- as.numeric(tmp.sent)
+
+neg.adj <- filter(opp_adv, tmp.sent<0)
+h <- abs(sum(neg.adj$tmp.sent * neg.adj$freq/adj.s.opp))
+
+pos.adj <- filter(opp_adv, tmp.sent>0)
+i <- sum(pos.adj$tmp.sent * pos.adj$freq/adj.s.opp )
+
+adv_senti <- c('positive', 'negative', 'positive', 'negative')
+combi_assignment <- c('Regierung', 'Regierung', 'Opposition', 'Opposition')
+
+adv_senti_df <- data.frame(adv_senti, combi_assignment)
+adv_senti_df$Wert <- c(g, f, i, h)
+adv_senti_df
+```
+
+Der Plot sieht wiefolgt aus:
+
+```{r}
+adv_senti_plot <- ggplot(adv_senti_df, aes(x=adv_senti, y=Wert, fill=combi_assignment)) +
+  geom_bar(stat='identity', position='dodge') +
+  xlab('Sentiment') +
+  ylab('kumulierter Wert') +
+  ggtitle('kumulierte Sentimentwerte für Adjektive') +
+  guides(fill=guide_legend(title="Position")) + 
+  scale_fill_manual("Position", values = c("Opposition" = "darkred", "Regierung" = "darkblue"))
+adv_senti_plot
+```
+
+
 
 
 
