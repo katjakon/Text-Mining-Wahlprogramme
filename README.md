@@ -7,11 +7,14 @@ In Wahlprogrammen stellen Parteien ihre Meinung und Ausrichtung dar und position
 Das wirft unter anderem folgende Fragen auf:
 
 + Gibt es Begriffe, die __typisch für bestimmte Parteien/Ausrichtungen__ sind?
-+ Welche __Themen__ werden in Wahlprogrammen behandelt?
-+ Wie __präsent__ sind bestimmte Themen in Wahlprogrammen?
-+ Wie werden Themen wie Europa und Klimawandel __über Parteien und Zeit hinweg__ dargestellt?
++ Wie __präsent__ sind Themen wie Klimawandel in Wahlprogrammen?
 + Stellen Parteien, die zum Zeitpunkt der Wahl an der Regierung beteiligt waren, die Lage in Deutschland positiver dar?
 
+# Benötigte R-Bibliotheken
++ `quanteda`, siehe [hier](https://quanteda.io/) für Informationen zur Installation.
++ `readtext`, siehe [hier](https://readtext.quanteda.io/index.html) für Informationen zur Installation.
++ `udpipe`, siehe [hier](https://cran.r-project.org/web/packages/udpipe/index.html) für Informationen zur Installation.
++ `tidyverse`, siehe [hier](https://www.tidyverse.org/packages/) für Informationen zur Installation.
 
 # Korpus
 Das Korpus enthält Wahlprogramme zur Bundestagswahl von 2002 bis 2017. Die Originale sind hier abrufbar:
@@ -34,9 +37,7 @@ Die Dateien wurden mithilfe von `pdftotext` und optical character recognition in
 + Korrektur von falsch erkannten Zeichen
 + Korrektur von vertauschten Absätzen durch zweispaltiges Layout
 
-# Erste Ergebnisse
-Erklärungen zum Code sind [hier](https://katjakon.github.io/Text-Mining-Wahlprogramme/) zu finden.
-## Vergleich von häufigen Termen zwischen den Parteien
-![Vergleich von Parteien](/exploration_plots/comparison_parties.png)
-## Vergleich von häufigen Termen zwischen den Jahren
-![Vergleich von Parteien](/exploration_plots/comparison_years.png)
+# Autoren
++ Anina Klaus (aklaus@uni-potsdam.de)
++ Katja Konermann (katja.konermann@uni-potsdam.de)
++ Niklas Stepczynski (stepczynski@uni-potsdam.de)
