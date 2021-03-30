@@ -38,8 +38,8 @@ positive <- data.frame(term=terms.pos, value=value.pos)
 negative <- data.frame(term=terms.neg, value=value.neg)
 
 # Or:
-load(file = "RData/senti_dict.RData")
-
+# load(file = "RData/senti_dict.RData")
+# senti_dict
 
 #################################
 ### Sentiment over years #######
@@ -54,14 +54,14 @@ tmp.neg <- filter(years, feature %in% negative$term)
 
 lvl.year <- levels(factor(years$group))
 sent.years <- data.frame(matrix(ncol = 3, nrow=0))
-colnames(test) <- c("year", "sum_freq", "sent")
+colnames(sent.years) <- c("year", "rel_freq", "sent")
 
 # Collect sentiment for positive terms
 for (i in 1:length(lvl.year)){
   curr.year <- filter(tmp.pos, group == lvl.year[i])
   sum.all <- sum(filter(years, group == lvl.year[i])$frequency)
   sum.freq <- sum(curr.year$frequency)
-  curr.row <- data.frame(year = lvl.year[i], sum_freq=sum.freq/sum.all, sent = "positive")
+  curr.row <- data.frame(year = lvl.year[i], rel_freq=sum.freq/sum.all, sent = "positive")
   sent.years <- rbind(sent.years, curr.row)
 }
 
@@ -70,14 +70,16 @@ for (i in 1:length(lvl.year)){
   curr.year <- filter(tmp.neg, group == lvl.year[i])
   sum.all <- sum(filter(years, group == lvl.year[i])$frequency)
   sum.freq <- sum(curr.year$frequency)
-  curr.row <- data.frame(year = lvl.year[i], sum_freq=sum.freq/sum.all, sent = "negative")
+  curr.row <- data.frame(year = lvl.year[i], rel_freq=sum.freq/sum.all, sent = "negative")
   sent.years <- rbind(sent.years, curr.row)
 }
 
 # Plot sentiment over years.
-ggplot(sent.years, aes(fill = sent, x=year, y=sum_freq)) +
+ggplot(sent.years, aes(fill = sent, x=year, y=rel_freq)) +
   geom_bar(position = "dodge", stat="identity")+
-  labs(y = "Relative Häufigkeit", x = "Jahre", fill="Sentiment", title = "Relative Häufigkeit von Sentimenttermen")+
+  labs(y = "Relative Häufigkeit", x = "Jahre",
+       fill="Sentiment",
+       title = "Relative Häufigkeit von Sentimenttermen")+
   scale_fill_manual(values = c("darkred", "darkgreen"))+
   theme_minimal()
 

@@ -8,4 +8,300 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Explanation for Sentiment 
+## Vorverarbeitung
+Wie auch bei den anderen Untersuchungen werden zunächst die nötigen Bibliotheken und das Korpora geladen. Im Weiteren werden Stoppwörter entfernt und eine _Document-Feature-Matrix_ erstellt.
+```{r preprocess, message=FALSE, warning=FALSE}
+library(quanteda)
+library(readtext)
+library(tidyverse)
+library(udpipe)
+
+# Load custom stoppwords
+load("RData/custom_stopwords.RData")
+# Load lemmatized corpus
+load("RData/lemmatized_corpus.RData")
+
+# Convert characters in year column to integers
+docvars(programs, field="year") <- as.integer(docvars(programs, field="year"))
+
+# Create tokens object for whole corpus, filter out stopwords.
+program_toks <- tokens(programs,remove_punct = TRUE) %>% tokens_remove(custom_stops)
+
+# Create dfm for corpus
+program_dfm <- dfm(program_toks)
+```
+
+Terme mit positiven und negativem Sentiment können aus den Dateien _SentiWS_v1.8c_Positive_ und _SentiWS_v1.8c_Negative_ im _data_-Verzeichnis folgendermaßen eingelesen werden:
+```{r read_in}
+neg <- scan("data/SentiWS_v1.8c_Negative.txt", what = "char", sep = "\n", fileEncoding="utf-8")
+pos <- scan("data/SentiWS_v1.8c_Positive.txt", what = "char", sep = "\n", fileEncoding="utf-8")
+
+# Split up lines.
+s <- str_split(neg, "\t")
+t <- str_split(pos, "\t")
+
+# Only read in token and not category (e.g. NN)
+terms.neg <- sub("([A-Za-zß]+)[|][A-Za-z]+", "\\1",lapply(s, function(l) l[[1]]))
+terms.pos <- sub("([A-Za-zß]+)[|][A-Za-z]+", "\\1",lapply(t, function(l) l[[1]]))
+
+# Convert sentiment values to numeric types.
+value.neg <- unlist(lapply(s, function(l) as.double(l[[2]])))
+value.pos <- unlist(lapply(t, function(l) as.double(l[[2]])))
+
+# Save results in data frame.
+positive <- data.frame(term=terms.pos, value=value.pos)
+negative <- data.frame(term=terms.neg, value=value.neg)
+```
+
+
+## Entwicklung des Sentiments über die Jahre
+
+Zunächst wird die relative Häufigkeit von positiven und negativen Sentimentttermen über die Jahre hinweg verglichen. Dafür wird zunächst eine _Document-Feature-Matrix_ nach Jahren gruppiert und alle Terme, die keinen Sentimentwert haben herausgefiltert. Sowohl für die negativen als auch für die positiven Terme wird dann die relative Häufigkeit pro Jahr in einem _Data Frame_ gesammelt.
+
+```{r sent_years}
+years <- dfm(program_dfm, groups = "year") %>% 
+  textstat_frequency(groups = "year") %>% 
+  as.data.frame()
+
+# FIlte
+tmp.pos <- filter(years, feature %in% positive$term)
+tmp.neg <- filter(years, feature %in% negative$term)
+
+lvl.year <- levels(factor(years$group))
+# Intialize data frame
+sent.years <- data.frame(matrix(ncol = 3, nrow=0))
+colnames(sent.years) <- c("year", "rel_freq", "sent")
+
+# Collect sentiment for positive terms
+for (i in 1:length(lvl.year)){
+  curr.year <- filter(tmp.pos, group == lvl.year[i])
+  # Get sum of all terms in that year for normalization.
+  sum.all <- sum(filter(years, group == lvl.year[i])$frequency)
+  # Get sum of all positive terms in that year
+  sum.freq <- sum(curr.year$frequency)
+  curr.row <- data.frame(year = lvl.year[i], rel_freq=sum.freq/sum.all, sent = "positive")
+  sent.years <- rbind(sent.years, curr.row)
+}
+
+# Collect sentiment for negative terms
+for (i in 1:length(lvl.year)){
+  curr.year <- filter(tmp.neg, group == lvl.year[i])
+  # Get sum of all terms in that year for normalization.
+  sum.all <- sum(filter(years, group == lvl.year[i])$frequency)
+  # Get sum of all negative terms in that year
+  sum.freq <- sum(curr.year$frequency)
+  curr.row <- data.frame(year = lvl.year[i], rel_freq=sum.freq/sum.all, sent = "negative")
+  sent.years <- rbind(sent.years, curr.row)
+}
+```
+
+Im nächsten Schritt kann das erstellte _Data Frame_ dann visualisiert werden:
+
+```{r vis_years}
+# Plot sentiment over years.
+ggplot(sent.years, aes(fill = sent, x=year, y=rel_freq)) +
+  geom_bar(position = "dodge", stat="identity")+
+  labs(y = "Relative Häufigkeit", x = "Jahre",
+       fill="Sentiment",
+       title = "Relative Häufigkeit von Sentimenttermen")+
+  scale_fill_manual(values = c("darkred", "darkgreen"))+
+  theme_minimal()
+```
+
+## Sentiment der Parteien
+Ähnlich wie bei der Entwicklung des Sentiments über die Jahre kann auch bei der Betrachtung des Sentiments der Parteien vorgegangen werden. Die _Document-Feature-Matrix_ wird nach Parteien gruppiert und nach Sentimenttermen gefiltert. Dann wird die relative Frequenz von positiven und negativen Termen pro Partei ermittelt. 
+```{r sent_parties}
+parties <- dfm(program_dfm) %>% 
+  textstat_frequency(groups = "party") %>% 
+  as.data.frame()
+
+# Filter for sentiment terms.
+tmp.pos <- filter(parties, feature %in% positive$term)
+tmp.neg <- filter(parties, feature %in% negative$term)
+
+party.vec <- levels(factor(parties$group))
+
+# Initialize data frame.
+sent.party <- data.frame(matrix(ncol=3, nrow=0))
+colnames(sent.party) <- c("party", "frequency", "sent")
+
+# Collect negative and positive terms.
+for (i in 1:length(party.vec)){
+  curr.party <- party.vec[i]
+  # Sum of all terms.
+  sum.all <- sum(filter(parties, group == curr.party)$frequency)
+  # Determine frequency of positive and negative terms
+  curr.pos <- sum(filter(tmp.pos, group == curr.party)$frequency)
+  curr.neg <- sum(filter(tmp.neg, group == curr.party)$frequency)
+  row.pos <- data.frame(party = curr.party, sent="positiv", frequency=curr.pos/sum.all)
+  row.neg <- data.frame(party = curr.party, sent="negativ", frequency=curr.neg/sum.all)
+  sent.party <- rbind(sent.party, row.pos, row.neg)
+}
+```
+
+Das Resultat kann dann folgendermaßen visualisiert werden.
+```{r vis_parties}
+
+# Plot sentiment for parties.
+ggplot(sent.party, aes(fill = sent, x=party, y=frequency)) +
+  geom_bar(position = "dodge", stat="identity")+
+  labs(y = "Relative Häufigkeit",
+       x = "Jahre",
+       fill="Sentiment",
+       title = "Relative Häufigkeit von Sentimenttermen nach Parteien")+
+  scale_fill_manual(values = c("darkred", "darkgreen"))+
+  theme_minimal()
+
+
+```
+
+## Sentiment nach Parteien und Jahren
+Die vorangegangenen Analysen können zusammengeführt werden, indem die relative Häufigkeit von Sentimenttermen über Jahre und Parteien hinweg dargestellt wird. Dafür muss ein _Data Frame_ nach beiden Parametern gruppiert werden. 
+
+```{r}
+part.year <- dfm(program_dfm) %>% 
+  textstat_frequency(groups = c("party", "year")) %>% 
+  as.data.frame()
+
+# Add columns for party and year.
+part.year$party <- unlist(lapply(strsplit(part.year$group, "[.]"), function(l) l[[1]]))
+part.year$year <- unlist(lapply(strsplit(part.year$group, "[.]"), function(l) l[[2]]))
+```
+
+Zunächst wird die relative Häufigkeit von positiven Sentimenttermen für jede Partei und jedes Jahr bestimmt und visualisiert.
+```{r positive_alles}
+# Initialze data frame for positive terms.
+pos.year.party <- data.frame(matrix(ncol=3, nrow=0))
+colnames(pos.year.party ) <- c("year", "party", "rel")
+
+lvl <- levels(factor(part.year$group))
+for (i in 1:length(lvl)){
+  curr.lvl <- lvl[i]
+  sum.lvl <- sum(filter(part.year, group == curr.lvl)$frequency)
+  pos.lvl <- filter(part.year, feature %in% positive$term & group== curr.lvl)
+  tmp.row <- data.frame(year = levels(factor(pos.lvl$year)),
+                        party = levels(factor(pos.lvl$party)),
+                        rel=sum(pos.lvl$frequency)/sum.lvl)
+  pos.year.party  <- rbind(pos.year.party , tmp.row)
+  
+}
+
+# Plot positive terms for parties over years.
+ggplot(pos.year.party, aes(fill = party, x=year, y=rel)) +
+  geom_bar(position = "dodge", stat="identity")+
+  labs(y = "Relative Häufigkeit", 
+       x = "Jahre",
+       fill="Partei",
+       title = "Relative Häufigkeit von Termen mit positivem Sentiment")+
+  theme_minimal()+
+  scale_fill_manual(values = c("blue", "#009933", "black", "#CC0066", "#FFFF00", "brown", "red"))
+
+```
+ 
+Das Gleiche kann für Terme mit negativem Sentiment wiederholt werden.
+```{r neg_all}
+# Initialze data frame for negative terms.
+neg.year.party <- data.frame(matrix(ncol=3, nrow=0))
+colnames(neg.year.party) <- c("year", "party", "rel")
+
+lvl <- levels(factor(part.year$group))
+
+for (i in 1:length(lvl)){
+  curr.lvl <- lvl[i]
+  sum.lvl <- sum(filter(part.year, group == curr.lvl)$frequency)
+  neg.lvl <- filter(part.year, feature %in% negative$term&group== curr.lvl)
+  tmp.row <- data.frame(year = levels(factor(neg.lvl$year)),
+                        party = levels(factor(neg.lvl$party)),
+                        rel=sum(neg.lvl$frequency)/sum.lvl)
+  neg.year.party <- rbind(neg.year.party, tmp.row)
+}
+
+# Plot negative sentiment over years for parties.
+ggplot(neg.year.party, aes(fill = party, x=year, y=rel)) +
+  geom_bar(position = "dodge", stat="identity")+
+  labs(y = "Relative Häufigkeit",
+       x = "Jahre",
+       fill="Partei",
+       title = "Relative Häufigkeit von Termen mit negativem Sentiment")+
+  theme_minimal()+
+  scale_fill_manual(values = c("blue", "#009933", "black", "#CC0066", "#FFFF00", "brown", "red"))
+
+```
+
+## Sentimentwerte der Parteien
+
+In den Sentimentwörterbüchern ist nicht nur vermerkt, welche Terme positiv und negativ belegt sind, sondern auch wie groß das Sentiment ist. Je positiver ein Term ist, desto näher liegt sein Wert an 1. Je negativer ein Term ist, desto näher liegt sein Wert an -1.
+Zusammen mit der relativen Häufigkeit kann so ein Sentimentscore für jede Partei berechnet werden. Dabei wird jeweils für die positiven und negativen Terme der Sentimentwert mit der relativen Häufigkeit multipliziert und dieser Wert dann für die positive bzw. negativen Terme aufsummiert.
+An einem Beispiel lässt sich dies gut verdeutlichen: Wenn Partei x den Begriff _wunderbar_ mit einem Sentimentwert 0.7 und einer relativen Häufigkeit von 0.5 und den Begriff _gut_ mit einem Sentimentwert 0.3 und einer relativen Häufigkeit von 0.2 verwendet, so ist der Sentimentscore von x 0.7\*0.5 + 0.3\*0.2 = 0.41. Die relative Häufigkeit wird hier verwendet, weil die Länge der Wahlprogramme der einzelnen Parteien sehr variiert.
+
+```{r vals}
+part.sent <- textstat_frequency(program_dfm, groups = "party") %>% as.data.frame()
+
+tmp.pos <- filter(part.sent, feature %in% positive$term)
+tmp.neg <- filter(part.sent, feature %in% negative$term)
+
+# Intialize data frame for positiv terms
+freq.pos <- as.data.frame(matrix(ncol = 4, nrow = 0))
+colnames(freq.pos) <- c("term", "sentiment", "frequency", "party")
+
+# Collect sentiment values for positive terms.
+for (i in 1:nrow(tmp.pos)){
+  curr.term <- tmp.pos$feature[i]
+  curr.value <- filter(positive, term == curr.term)$value
+  curr.freq <- tmp.pos$frequency[i]
+  curr.row <- data.frame(term = curr.term,
+                         sentiment = curr.value,
+                         frequency = curr.freq,
+                         party = tmp.pos$group[i])
+  freq.pos <- rbind(freq.pos, curr.row)
+}
+
+# Intialize data frame for negative terms
+freq.neg <- as.data.frame(matrix(ncol = 4, nrow = 0))
+colnames(freq.neg) <- c("term", "sentiment", "frequency", "year")
+
+# Collect sentiment values for negative terms.
+for (i in 1:nrow(tmp.neg)){
+  curr.term <- tmp.neg$feature[i]
+  curr.value <- filter(negative, term == curr.term)$value
+  curr.freq <- tmp.neg$frequency[i]
+  curr.row <- data.frame(term = curr.term,
+                         sentiment = curr.value,
+                         frequency = curr.freq,
+                         party = tmp.neg$group[i])
+  freq.neg<- rbind(freq.neg, curr.row)
+}
+
+part.lvl <- levels(factor(freq.neg$party))
+sent.values <- data.frame(matrix(ncol=3, nrow=0))
+colnames(sent.values) <- c("party", "pos", "neg")
+
+# Compute sum for positive and negative terms
+for (i in 1:length(part.lvl)){
+  tmp.party <- part.lvl[i]
+  curr.pos <- filter(freq.pos, party == tmp.party)
+  curr.neg <- filter(freq.neg, party == tmp.party)
+  sum.all <- sum(filter(textstat_frequency(program_dfm, group = "party"),
+                        group == tmp.party)$frequency)
+  # compute sum of sentiment value multiplied by relative frequency.
+  p <- sum(curr.pos$sentiment * curr.pos$frequency/sum.all)
+  n <- sum(curr.neg$sentiment * curr.neg$frequency/sum.all)
+  tmp <- data.frame(party=tmp.party, pos=p, neg=n)
+  sent.values <- rbind(sent.values, tmp)
+}
+
+```
+Das Resultat kann dann als eine Gegenüberstellung des negativen und positiven Sentimentscores nach Partei dargestellt werden:
+```{r val_viz}
+# Plot sentiment scores for parties.
+ggplot(sent.values) +
+  geom_segment( aes(x=party, xend=party, y=pos, yend=neg), color="black") +
+  geom_point( aes(x=party, y=pos), color="darkgreen", size=5 ) +
+  geom_point( aes(x=party, y=neg), color="darkred", size=5 )+
+  geom_hline(yintercept = 0)+
+  theme_minimal()+
+  labs(x = "Partei", y="Score", title="Positive und Negative Sentimentscores")
+
+
+```
+
